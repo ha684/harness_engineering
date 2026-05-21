@@ -1,0 +1,17 @@
+# Append these to your project's .gitignore.
+#
+# These cover artifacts the harness scripts (or agents) might create
+# locally but should never be committed.
+
+# Agent / harness temp files
+.agent-scratch/
+*.agent-tmp
+.harness-cache/
+
+# Debug logs from agent sessions
+debug-*.log
+trace-*.log
+
+# Local-only overrides
+AGENTS.local.md
+.env.local

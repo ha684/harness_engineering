@@ -21,27 +21,33 @@ Missing any one of these is like a kitchen with no stove, or no quality-check wi
 ```
 harness_engineering/
 ├── README.md                 # You are here
-├── GUIDE.md                  # Full workflow: how to use this kit across projects
+├── GUIDE.md                  # Full workflow, including product-dev and outsource models
 ├── templates/                # COPY THESE into your new project
 │   ├── AGENTS.md             # Routing entry file (50-200 lines)
-│   ├── PROGRESS.md           # Cross-session state
+│   ├── PROGRESS.md           # Cross-session state (single-person / feature branch)
 │   ├── DECISIONS.md          # Design decision log
 │   ├── features.md           # Feature list with state machine
+│   ├── TASK.md               # Outsource contract (one task handed to a contractor)
 │   ├── QUALITY.md            # Per-module quality tracker
 │   ├── Makefile              # Standardized commands
 │   ├── docs/                 # Topic docs (loaded on demand)
 │   └── scripts/              # Verification + session-exit checks
 ├── prompts/                  # PASTE THESE into an agent to generate filled files
-│   ├── 01-generate-from-repo.md     # For existing projects (agent scans code)
-│   ├── 02-generate-interactive.md   # For greenfield projects (agent asks you)
+│   ├── 01-generate-from-repo.md     # Existing projects (agent scans code)
+│   ├── 02-generate-interactive.md   # Greenfield (agent asks you)
 │   ├── 03-session-start.md          # Clock-in routine
-│   └── 04-session-exit.md           # Clock-out routine (clean handoff)
+│   ├── 04-session-exit.md           # Clock-out (clean handoff)
+│   ├── 05-generate-task-brief.md    # Generate a TASK.md for outsourcing (client side)
+│   └── 06-task-intake.md            # Receive + plan + implement + verify a task (contractor side)
 ├── examples/
 │   └── fastapi-todo/         # Fully filled-in worked example to study
-└── checklists/               # Quick-reference checklists from the lectures
-    ├── bootstrap-contract.md       # Lecture 06: four init conditions
-    ├── cold-start-test.md          # Lecture 03: five repo questions
-    └── session-exit.md             # Lecture 12: five clean-state dimensions
+│       ├── AGENTS.md, PROGRESS.md, DECISIONS.md, features.md, QUALITY.md, Makefile
+│       └── TASK-F04-example.md      # What a good TASK.md looks like when filled
+└── checklists/               # Quick-reference checklists
+    ├── bootstrap-contract.md # Lecture 06: four init conditions
+    ├── cold-start-test.md    # Lecture 03: five cold-start questions
+    ├── session-exit.md       # Lecture 12: five clean-state dimensions
+    └── task-handoff.md       # Outsource model: pre-delivery + post-review checks
 ```
 
 ## Quick start (60 seconds)
@@ -76,6 +82,18 @@ For an existing project:
 ## Read GUIDE.md next
 
 `GUIDE.md` walks through the full workflow: how to onboard a new project, how to run a session start-to-finish, what to do when something fails, and how to evolve the harness over time.
+
+## Two team models
+
+`GUIDE.md` covers three operating modes in detail:
+
+| Mode | Key files | When |
+|---|---|---|
+| **Single-person / solo agent** | AGENTS.md, PROGRESS.md, features.md | Personal projects, solo sessions |
+| **Product development** | AGENTS.md on main, SESSION.md on branch, features.md as state machine | Multi-person team, continuous sprints |
+| **Outsourcing / task-based** | AGENTS.md + DECISIONS.md + TASK.md delivered per task | Contractors, freelancers, isolated agent sessions |
+
+The instruction subsystem (AGENTS.md, docs/, DECISIONS.md) is **universal across all three modes**. Only the state subsystem (PROGRESS/SESSION/TASK) changes.
 
 ## Source lectures
 

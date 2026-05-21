@@ -177,6 +177,164 @@ Verification gap (lecture 09). The feature's verification command is too weak or
 
 ---
 
+---
+
+## Team model A — Product development (multi-person, continuous)
+
+Use this when: you have an ongoing product, multiple developers (human or agent), continuous sprints, no hard task boundary.
+
+### What changes vs the single-person model
+
+**Shared truth lives on `main`, never conflicts:**
+
+```
+main branch
+├── AGENTS.md          ← project constitution, rarely changes
+├── DECISIONS.md       ← append-only, PR required to add entries
+├── docs/              ← team-maintained architecture + testing docs
+├── features.md        ← master tracker (state machine only, see below)
+└── QUALITY.md         ← reviewed in weekly cleanup sessions
+```
+
+**Per-person state lives on feature branches, never merges to main:**
+
+```
+feature/F04-status-filter
+└── SESSION.md         ← rename from PROGRESS.md; scoped to this branch only
+```
+
+`SESSION.md` is discarded (or squash-merged into a branch summary) when the feature merges. It never touches `main`.
+
+### features.md in a multi-person team
+
+Keep `features.md` on `main` as a state machine tracker only — **no process notes, no sub-steps, no "in progress" prose**. Each row is owned by exactly one person at a time (WIP=1 per feature, not per person):
+
+```
+| F04 | Filter by status | pytest tests/integration/test_filter.py | active | @alice |
+| F05 | Bulk update      | pytest tests/integration/test_bulk.py  | not_started | — |
+```
+
+Add an `Owner` column. Merge conflict rate drops to near zero because each row belongs to one person.
+
+**Scale threshold:** if the team exceeds ~5 people or features exceed ~30 rows, replace `features.md` with GitHub Issues / Linear. In the repo, keep only `CURRENT_TASK.md` — a snapshot of the single feature the current branch is working on (pulled from the tracker at branch creation).
+
+### Sprint / milestone rhythm
+
+```
+Sprint start:
+  - Human updates features.md: promote next batch from not_started → queued
+  - Each dev picks one feature, creates a branch, creates SESSION.md
+
+During sprint:
+  - AGENTS.md, DECISIONS.md, docs/ updated via PR with review
+  - SESSION.md updated freely on the branch (no review)
+  - features.md state transitions (active → passing) via PR
+
+Sprint end / cleanup session:
+  - One dedicated cleanup session (lecture 12): no feature work
+  - QUALITY.md re-scored for all modules touched this sprint
+  - Run cold-start test (checklists/cold-start-test.md)
+  - AGENTS.md pruned if it grew past 200 lines
+```
+
+### Agent sessions in product mode
+
+Each agent session works on one feature branch. The clock-in/clock-out prompts (`prompts/03-session-start.md`, `prompts/04-session-exit.md`) work unchanged — the agent reads `SESSION.md` instead of `PROGRESS.md`. The only config change: add this to `AGENTS.md`:
+
+```markdown
+## State files (multi-person)
+- `AGENTS.md`, `docs/`, `DECISIONS.md` — project-wide truth, read-only for agents
+- `SESSION.md` (on feature branch) — session state, agent updates freely
+- `features.md` on main — state transitions only, updated via PR
+```
+
+---
+
+## Team model B — Outsourcing / task-based
+
+Use this when: you hand discrete tasks to contractors, freelancers, or separate agent sessions with no shared context. The contractor should be able to do their work with **only the files you give them** and no verbal briefing.
+
+### The ownership split
+
+```
+Client maintains (project knowledge):         Contractor receives (task knowledge):
+├── AGENTS.md                                 ├── AGENTS.md (read-only copy)
+├── DECISIONS.md                              ├── DECISIONS.md (read-only copy)
+├── docs/                                     ├── relevant docs/
+└── features.md (master)                      └── TASK.md ← this is the key artifact
+```
+
+The contractor does **not** receive `PROGRESS.md` (not relevant), `QUALITY.md` (not their concern), or `features.md` (they only work on one task).
+
+### TASK.md — the contract
+
+`TASK.md` is a scoped mini-sprint contract (lecture 11) for a single outsourced task. Think of it as the intersection of a feature entry from `features.md` and everything the contractor needs to understand to do it safely.
+
+See `templates/TASK.md` for the blank template. The `prompts/05-generate-task-brief.md` prompt can auto-generate a TASK.md from a feature entry + the project's AGENTS.md.
+
+### End-to-end outsource workflow
+
+```
+Client (before handing off):
+  1. Pick a feature from features.md (must be not_started, not blocked)
+  2. Run prompts/05-generate-task-brief.md → produces TASK.md
+  3. Review TASK.md: is scope clear? are acceptance criteria testable?
+     are the context pointers correct?
+  4. Mark feature as active in features.md (so no one else picks it)
+  5. Hand contractor: AGENTS.md + DECISIONS.md + TASK.md + relevant docs/
+
+Contractor (doing the work):
+  1. Read AGENTS.md (rules), DECISIONS.md (context), TASK.md (the job)
+  2. Run make setup to verify environment
+  3. Implement against TASK.md acceptance criteria
+  4. Run the verification command — must exit 0
+  5. Fill in TASK.md "Evidence" section (commit hash + test output snippet)
+  6. Deliver: code + completed TASK.md
+
+Client (after receiving):
+  1. Run make check — must be green
+  2. Re-run the verification command independently
+  3. If passing: update features.md state to passing, record evidence
+  4. If not: return TASK.md with specific failure reason + FIX guidance
+     (lecture 10: error messages should tell how to fix, not just what failed)
+  5. Update DECISIONS.md if the task introduced new design choices
+```
+
+### What makes a good TASK.md
+
+The test: can a skilled contractor complete the task with zero verbal communication, relying only on the files you gave them?
+
+**Good TASK.md:**
+- Scope section says exactly which files/modules to touch
+- Out-of-scope section says what NOT to touch (prevents drive-by refactors)
+- Acceptance criteria are behavioral, not implementation-level
+- Verification command is a single runnable command that exits 0 on pass
+- Context pointers say "see DECISIONS.md entry 2026-03-01" not "use our auth style"
+
+**Bad TASK.md:**
+- "Add the usual auth middleware" (what is "the usual"?)
+- "Make sure it's clean" (not verifiable)
+- No verification command
+- No out-of-scope section (contractor refactors half the codebase "while there")
+
+### When a task comes back broken
+
+Do not just say "tests fail, fix it." That creates a guessing loop. Instead, fill in the TASK.md "Rejection reason" section with:
+
+```
+Rejection reason: test_verify_email_expired_token fails (exit 1).
+Command: pytest tests/integration/test_verify_email.py::test_expired_token
+Output: AssertionError: expected 422, got 200
+Root cause (client investigation): the token expiry check is in service layer
+  but the test is calling the repo directly, bypassing it.
+Fix: move the expiry check into the route handler or call via the service
+  in the test (see docs/testing.md "no direct repo calls in integration tests").
+```
+
+This mirrors lecture 10's agent-oriented error message pattern — but for human/contractor handoffs.
+
+---
+
 ## When NOT to use this template
 
 This kit is overkill for:

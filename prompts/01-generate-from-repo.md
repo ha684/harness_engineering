@@ -18,28 +18,51 @@ You are setting up the harness engineering layer for this existing repository. T
 
 Without modifying anything, gather:
 
-- **Language and runtime versions** — check `pyproject.toml`, `package.json`, `go.mod`, `Cargo.toml`, `.python-version`, `.nvmrc`, Dockerfile, README, CI configs.
-- **Major dependencies** — framework, ORM, test runner, lint/typecheck tools.
-- **Directory layout** — top-level structure, where modules live, naming patterns.
-- **Existing verification commands** — what does CI run? What scripts exist in `package.json` / `Makefile` / `tox.ini` / etc?
-- **Implicit conventions** — read 3-5 representative source files. Note: error-handling style, dependency injection pattern, layering (api/service/repo or similar), test naming, import style.
+- **Repo structure type** — check the top-level layout first. Is this a single-area repo (one language, one framework) or a **monorepo** (multiple distinct areas like `backend/`, `frontend/`, `infra/`, `mobile/`)? List every top-level directory that contains independent code with its own stack or tooling. This determines whether you generate one AGENTS.md or a tiered set.
+- **Language and runtime versions per area** — check `pyproject.toml`, `package.json`, `go.mod`, `Cargo.toml`, `.python-version`, `.nvmrc`, Dockerfile, README, CI configs. In a monorepo, do this per area.
+- **Major dependencies per area** — framework, ORM, test runner, lint/typecheck tools.
+- **Directory layout** — top-level structure, where modules live, naming patterns within each area.
+- **Existing verification commands** — what does CI run? What scripts exist in `package.json` / `Makefile` / `tox.ini` / etc? Note area-specific targets (e.g. `test-be`, `test-fe`) vs unified targets.
+- **Implicit conventions** — read 3-5 representative source files per area. Note: error-handling style, dependency injection pattern, layering, test naming, import style.
 - **README / existing docs** — extract any architecture decisions or constraints.
 - **Git log (last ~50 commits)** — what is being worked on? Are there in-flight branches / PRs?
 
-After this phase, produce a **one-screen recon summary** listing what you found in each category. Stop and present it before writing anything.
+After this phase, produce a **one-screen recon summary** with an explicit section: **"Repo type: single-area / monorepo"**. If monorepo, list each area, its stack, and its top-level directory. Stop and present before writing anything.
 
 ## Phase 2 — Fill the templates
 
-After I confirm the recon summary, propose updated versions of each file. **Show diffs, do not silently overwrite.** Order:
+After I confirm the recon summary, propose updated versions of each file. **Show diffs, do not silently overwrite.**
+
+### If single-area repo
+
+Generate in this order:
 
 1. `AGENTS.md` — overview, stack with versions, hard constraints, working style, topic doc links, verification commands.
 2. `Makefile` — replace each TODO with the real command. Test that each target actually works.
 3. `docs/architecture.md` — module map, dependency rules, invariants. Cite file paths.
 4. `docs/testing.md` — test framework, conventions, verification command shapes.
-5. `features.md` — propose 5-10 features that reflect either: (a) recent work in the git log, (b) obvious next steps from README/TODOs, (c) gaps you noticed. **Mark all as `not_started` unless you can prove they are done with a passing test.** Each must have a real, executable verification command.
-6. `DECISIONS.md` — pull design decisions from README, ADRs, prominent comments. Cite the source for each entry.
-7. `QUALITY.md` — initial scoring of top-level modules. Be conservative: default to B unless you have strong evidence for A or weak evidence for C.
-8. `PROGRESS.md` — current commit, build/test status (run `make check` to confirm), no active feature, next steps = "review and adjust the harness files".
+5. `features.md` — propose 5-10 features. Each needs a real verification command. All `not_started` unless proven passing.
+6. `DECISIONS.md` — pull design decisions from README, ADRs, prominent comments. Cite the source.
+7. `QUALITY.md` — initial scoring of top-level modules. Default to B unless evidence says otherwise.
+8. `PROGRESS.md` — current commit, build/test status, next steps = "review and adjust the harness files".
+
+### If monorepo
+
+Generate a tiered set. Order:
+
+1. **Root `AGENTS.md`** — project overview (the whole system), global constraints that apply to ALL areas (git conventions, security rules, PR process, deploy rules), quick start (`make setup && make check`), and a routing table listing each area with its specific AGENTS.md path and when to load it.
+
+2. **`<area>/AGENTS.md` per area** (e.g. `backend/AGENTS.md`, `frontend/AGENTS.md`, `infra/AGENTS.md`) — area-specific stack, constraints, and verification commands. Keep each under 150 lines. What belongs here: anything that only applies to this area (language version, framework conventions, area-specific lint rules, area-specific test commands).
+
+3. **Root `Makefile`** — unified targets (`make setup`, `make check`) that delegate to area-specific targets, plus area targets (`make test-be`, `make test-fe`, `make lint-be`, etc.).
+
+4. **`<area>/docs/architecture.md` per area** — module map and dependency rules for that area. Cite file paths.
+
+5. **Root `docs/architecture.md`** — cross-area diagram only: how areas communicate (API contracts, message queues, shared schemas). Do not duplicate area-internal details.
+
+6. **Root `features.md`** — all features, each with an `Area` column tagged `[BE]`, `[FE]`, `[BOTH]`, or the relevant area name. Features tagged `[BOTH]` require both areas' verification commands to pass before marking `passing`.
+
+7. **Root `DECISIONS.md`**, `QUALITY.md`, `PROGRESS.md` — same as single-area, but QUALITY.md scores modules across all areas.
 
 ## Phase 3 — Bootstrap contract verification
 

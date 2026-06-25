@@ -17,10 +17,11 @@ You are generating a `TASK.md` for a task that will be handed to a contractor or
 
 Read the following in this order:
 
-1. `features.md` — find the row for feature ID **[USER: INSERT FEATURE ID HERE]**. Extract the behavior description and verification command.
-2. `AGENTS.md` — note hard constraints that apply to this feature area.
-3. `DECISIONS.md` — identify active decisions that touch the feature's scope (auth, data model, error handling, testing patterns, etc.). Do NOT include unrelated decisions.
-4. Source files in the likely touch zone — read 3-5 files around the area being changed to understand existing patterns (route handler structure, service method signatures, test file organization, etc.).
+1. `features.md` — find the row for feature ID **[USER: INSERT FEATURE ID HERE]**. Extract the behavior description, verification command, and **Area tag** (`[BE]`, `[FE]`, `[BOTH]`, etc.).
+2. **Root `AGENTS.md`** — global hard constraints that apply to all areas.
+3. **Area-specific `AGENTS.md`** — if the feature has an area tag, also read that area's AGENTS.md (e.g. `backend/AGENTS.md` for a `[BE]` feature). For `[BOTH]` features, read all relevant area files. These contain the stack-specific constraints the contractor must follow.
+4. `DECISIONS.md` — identify active decisions that touch the feature's scope. Do NOT include unrelated decisions.
+5. Source files in the likely touch zone — read 3-5 files around the area being changed.
 
 After reading, produce a one-paragraph summary of what the task is and what context matters. Stop and show this summary before drafting the TASK.md.
 

@@ -10,23 +10,30 @@ You are starting a new session on a harnessed project. Before doing any new work
 
 In this order:
 
-1. `AGENTS.md` — load the routing entry. Note hard constraints and verification commands.
-2. `PROGRESS.md` — current state, what is in progress, immediate next steps.
-3. `DECISIONS.md` — active design constraints. Pay attention to entries in the "Deferred" section (those are temptations to avoid).
-4. `features.md` — current feature states. Confirm WIP=1: at most one feature is `active`.
-5. `QUALITY.md` — if any module touching today's work is rated C or D, factor that in.
+1. **Root `AGENTS.md`** — load global rules and the area routing table. Note which area-specific AGENTS.md files exist (e.g. `backend/AGENTS.md`, `frontend/AGENTS.md`, `infra/AGENTS.md`).
+2. `PROGRESS.md` — current state, active feature, immediate next steps.
+3. `DECISIONS.md` — active design constraints. Pay attention to "Deferred" entries.
+4. `features.md` — current feature states. Confirm WIP=1: at most one feature is `active`. Note the `Area` tag of the active (or next) feature.
+5. **Area-specific `AGENTS.md`** — if the active or next feature has an area tag (e.g. `[BE]`), read that area's AGENTS.md now (e.g. `backend/AGENTS.md`). If it is `[BOTH]`, read all relevant area files. Do not load areas unrelated to today's work.
+6. `QUALITY.md` — if any module touching today's work is rated C or D, factor that in.
 
-If any of these files do not exist, **stop**. The repo is not properly harnessed yet. Ask the user whether to bootstrap (see `prompts/02-generate-interactive.md`) or whether you should proceed without harness discipline (risky — say so explicitly).
+If `AGENTS.md` does not exist, **stop**. The repo is not properly harnessed yet. Ask the user whether to bootstrap (see `prompts/02-generate-interactive.md`).
 
 ## Step 2 — Confirm a clean baseline
 
-Run `make check` (or equivalent). All three layers must pass.
+Run the appropriate check command:
 
-- If **lint/typecheck** fails: the previous session ended in an unclean state. Fix it before starting new work.
-- If **tests** fail: same — investigate whether the failure is pre-existing (in which case it should already be in `PROGRESS.md`'s "Known Issues") or new.
-- If `make check` does not exist or is broken: the Makefile itself is broken. Fix it before anything else.
+- **Single-area repo:** `make check`
+- **Monorepo, working in one area:** `make check-be` or `make check-fe` (area-specific). Also run `make check` if the change might affect other areas.
+- **Monorepo, cross-area feature `[BOTH]`:** `make check` (full, all areas).
 
-**Do not start a new feature on top of a red baseline.** If the previous session left things broken, the right move is to triage and stabilize — not to add more changes.
+All three layers (lint, typecheck, test) must pass for the relevant area(s).
+
+- If **lint/typecheck** fails: the previous session ended unclean. Fix it before starting new work.
+- If **tests** fail: investigate — pre-existing (should be in `PROGRESS.md` → "Known Issues") or new regression.
+- If the check command does not exist: the Makefile is broken. Fix it before anything else.
+
+**Do not start a new feature on top of a red baseline.**
 
 ## Step 3 — Announce intent
 

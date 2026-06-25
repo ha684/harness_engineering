@@ -18,11 +18,12 @@ Work in four phases. Do not skip phases or merge them. Each phase ends with a pa
 
 Read the following files **in this order**. Do not skim.
 
-1. `TASK.md` — the contract. Read every section: scope, out-of-scope, acceptance criteria, verification command, context pointers.
-2. `AGENTS.md` — non-negotiable rules. Every hard constraint applies to your work.
-3. `DECISIONS.md` — read only the entries referenced in TASK.md "Context — decisions affecting this task". Do not read others unless you hit a gap.
-4. Source files listed in TASK.md "Relevant files to read first" — read them fully, not just the first few lines.
-5. Source files in TASK.md "Scope" — skim to understand current state before your changes.
+1. `TASK.md` — the contract. Read every section: scope, out-of-scope, acceptance criteria, verification command, context pointers. Note the area tag if present (`[BE]`, `[FE]`, `[BOTH]`).
+2. **Root `AGENTS.md`** — global non-negotiable rules. Apply to all your work.
+3. **Area-specific `AGENTS.md`** — if TASK.md has an area tag or if the scope files live under an area directory (e.g. `backend/`, `frontend/`), check for and read that area's AGENTS.md (e.g. `backend/AGENTS.md`). These contain stack-specific constraints that override or extend the root. If no area-specific file exists, continue.
+4. `DECISIONS.md` — read only the entries referenced in TASK.md "Context — decisions affecting this task".
+5. Source files listed in TASK.md "Relevant files to read first" — read fully.
+6. Source files in TASK.md "Scope" — skim to understand current state.
 
 After reading, produce a structured **understanding summary**:
 

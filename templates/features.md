@@ -9,6 +9,13 @@
         and only after running the verification command successfully.
 
   WIP=1 (lecture 07): exactly one feature is `active` at any time.
+  For monorepos: WIP=1 globally (one feature active across all areas).
+
+  Area tags (monorepo only — delete column if single-area):
+    [BE]   — backend only
+    [FE]   — frontend only
+    [BOTH] — spans areas; split into sub-features when possible.
+             A [BOTH] feature is only `passing` when ALL area verification commands pass.
 
   Granularity guideline: each feature should be completable in one session.
   Too broad ("implement the shopping cart") — break it down.
@@ -17,11 +24,11 @@
 
 ## Feature List
 
-| ID | Behavior | Verification | State | Evidence |
-|---|---|---|---|---|
-| F01 | TODO: one-line behavior description | TODO: executable command | not_started | — |
-| F02 | TODO | TODO | not_started | — |
-| F03 | TODO | TODO | not_started | — |
+| ID | Behavior | Verification | State | Area | Evidence |
+|---|---|---|---|---|---|
+| F01 | TODO: one-line behavior description | TODO: executable command | not_started | — | — |
+| F02 | TODO | TODO | not_started | — | — |
+| F03 | TODO | TODO | not_started | — | — |
 
 ## Active
 

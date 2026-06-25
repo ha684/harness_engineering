@@ -15,29 +15,57 @@ You are bootstrapping the harness engineering layer for a brand-new project. The
 
 ## Phase 1 — Project shape
 
-Ask me about:
+Ask me about the following. Group into a single message with clear sub-questions. Wait for my answers before moving on.
 
 - **Project purpose** — what is being built, in 1-2 sentences. Who uses it.
-- **Stack** — language + version, framework, database, package manager, test framework, lint/typecheck tools. Be specific (versions matter).
-- **Constraints I already know about** — e.g. "must use OAuth 2.0", "team prefers functional style", "no Docker in production".
-- **Initial scope** — what are the first 3-5 features that need to be built? For each, what would "done" look like to me?
+- **Repo structure** — is this a single-area project (one language, one framework) or a **monorepo** with multiple distinct areas (e.g. backend + frontend, or backend + frontend + infra)? If monorepo, list each area and its rough stack. This is the most important structural question — the rest of Phase 2 branches based on this.
+- **Stack per area** — language + version, framework, database, package manager, test framework, lint/typecheck tools. Be specific (versions matter). If monorepo, answer per area.
+- **Constraints I already know about** — e.g. "must use OAuth 2.0", "team prefers functional style", "no Docker in production", "infra changes require human approval". If some constraints apply only to one area, say which.
+- **Initial scope** — what are the first 3-5 features to build? For each: which area(s) does it touch, and what does "done" look like?
 
-Group these into a single message with clear sub-questions. Wait for my answers before moving on.
+Wait for my answers before moving on.
 
 ## Phase 2 — Propose the harness
 
-After my answers, propose updated versions of the template files. **Show each file's proposed content; do not write them until I approve each one.**
+After my answers, propose files in the order below. **Show each file's proposed content; do not write until I approve.**
 
-Order:
+### If single-area
 
-1. `AGENTS.md` — overview, stack, hard constraints, working style, verification commands. Stay under 200 lines.
-2. `Makefile` — concrete commands for setup, dev, test, lint, typecheck, e2e, check. Use stack-appropriate tools. **If you are unsure what command to use, ask** — do not write a command you cannot defend.
-3. `features.md` — break the initial scope into 3-5 features with executable verification commands. All `not_started`.
-4. `docs/architecture.md` — propose a starting architecture (e.g. layered: api → service → repo) and the dependency rules. Confirm with me before committing.
-5. `docs/testing.md` — adapt to the chosen test framework.
-6. `DECISIONS.md` — log the decisions made during this Q&A (e.g. "chose FastAPI over Flask because ...") so they survive future sessions.
-7. `QUALITY.md` — placeholder, since there are no modules yet. Note: "modules will be scored after first features land."
-8. `PROGRESS.md` — current state = "harness bootstrapped, no features started", next steps = "verify bootstrap contract, then start F01".
+1. `AGENTS.md` — overview, stack, hard constraints, working style, verification commands. Under 200 lines.
+2. `Makefile` — concrete commands: setup, dev, test, lint, typecheck, e2e, check. Ask if unsure — never invent a command.
+3. `features.md` — 3-5 features with verification commands. All `not_started`.
+4. `docs/architecture.md` — starting architecture + dependency rules. Confirm before writing.
+5. `docs/testing.md` — adapted to the chosen test framework.
+6. `DECISIONS.md` — decisions made during this Q&A with reasons.
+7. `QUALITY.md` — placeholder. Note: "modules scored after first features land."
+8. `PROGRESS.md` — state = "bootstrapped, no features started".
+
+### If monorepo
+
+Generate in this order:
+
+1. **Root `AGENTS.md`** — whole-system overview, global constraints (apply to ALL areas), `make setup && make check`, and a routing table:
+   ```
+   ## Area routing
+   - Working in backend/ → also read backend/AGENTS.md
+   - Working in frontend/ → also read frontend/AGENTS.md
+   - Working in infra/ → also read infra/AGENTS.md
+   - Cross-area change → read all relevant area AGENTS.md files
+   ```
+
+2. **`<area>/AGENTS.md` per area** — area-specific stack, constraints, verification commands. Under 150 lines each. Only rules that differ from or add to the root.
+
+3. **Root `Makefile`** — unified targets (`make setup`, `make check`) plus area-specific targets (`make test-be`, `make test-fe`, `make lint-be`, `make lint-fe`, etc.).
+
+4. **`<area>/docs/architecture.md` per area** — that area's module map and layer rules.
+
+5. **Root `features.md`** — all features with an `Area` column: `[BE]`, `[FE]`, `[BOTH]`, or area name. `[BOTH]` features only reach `passing` when BOTH areas' verification commands pass.
+
+6. **Root `DECISIONS.md`** — decisions from this Q&A. Mark area-scoped decisions with the area name.
+
+7. **Root `QUALITY.md`** — placeholder, will score per-module across areas once features land.
+
+8. **Root `PROGRESS.md`** — state = "bootstrapped, no features started".
 
 ## Phase 3 — Bootstrap contract verification
 

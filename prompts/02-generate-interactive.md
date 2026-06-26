@@ -21,6 +21,8 @@ Ask me about the following. Group into a single message with clear sub-questions
 - **Repo structure** — is this a single-area project (one language, one framework) or a **monorepo** with multiple distinct areas (e.g. backend + frontend, or backend + frontend + infra)? If monorepo, list each area and its rough stack. This is the most important structural question — the rest of Phase 2 branches based on this.
 - **Stack per area** — language + version, framework, database, package manager, test framework, lint/typecheck tools. Be specific (versions matter). If monorepo, answer per area.
 - **Constraints I already know about** — e.g. "must use OAuth 2.0", "team prefers functional style", "no Docker in production", "infra changes require human approval". If some constraints apply only to one area, say which.
+- **Infra area** (if monorepo includes infra/) — what IaC tool? (Terraform / CDK / Pulumi / shell scripts). What cloud target? (AWS / GCP / Azure / local-only). Any "move to real cloud later" intent? Default to Terraform if unsure.
+- **Strictness preferences** — for typed languages: strict mode or standard? (e.g. pyright strict vs standard, TypeScript strict, eslint strict rulesets). If unsure, default to strict and announce it.
 - **Initial scope** — what are the first 3-5 features to build? For each: which area(s) does it touch, and what does "done" look like?
 
 Wait for my answers before moving on.
@@ -28,6 +30,10 @@ Wait for my answers before moving on.
 ## Phase 2 — Propose the harness
 
 After my answers, propose files in the order below. **Show each file's proposed content; do not write until I approve.**
+
+**AGENTS.md placement rule (applies everywhere):**
+Root `AGENTS.md` global constraints = **workflow + process rules only**: WIP=1, verification-before-done, branch/commit conventions, deploy approval gates, PR rules.
+Technical rules (language version, framework conventions, async/sync, cloud/infra rules, lint config, region) belong in **area AGENTS.md** — not root. If a rule would not apply equally to every area, it goes in the area file.
 
 ### If single-area
 
@@ -55,17 +61,33 @@ Generate in this order:
 
 2. **`<area>/AGENTS.md` per area** — area-specific stack, constraints, verification commands. Under 150 lines each. Only rules that differ from or add to the root.
 
+   **Deferred area pattern:** If an area exists but work has not started (e.g. `frontend/` with no code, or an area the user said comes later), generate a "deferred with trigger" placeholder — not a half-filled file:
+   - First line: `> **Status: intentionally deferred — not started yet.**`
+   - Proposed stack (mark as "proposed, not confirmed")
+   - Purpose section: what problems this area solves
+   - Trigger block: the specific event that causes this file to be completed — e.g. "when the first FE feature is picked: (1) confirm stack with human, (2) add `make setup-fe`/`lint-fe`/`test-fe` targets to root Makefile, (3) replace proposed stack with confirmed stack, (4) remove this notice"
+   - Any hard constraints already known (API contracts, architectural boundaries)
+
+   A placeholder that looks unfinished is worse than no placeholder. Make the "deferred" intent unmistakable.
+
 3. **Root `Makefile`** — unified targets (`make setup`, `make check`) plus area-specific targets (`make test-be`, `make test-fe`, `make lint-be`, `make lint-fe`, etc.).
 
 4. **`<area>/docs/architecture.md` per area** — that area's module map and layer rules.
 
 5. **Root `features.md`** — all features with an `Area` column: `[BE]`, `[FE]`, `[BOTH]`, or area name. `[BOTH]` features only reach `passing` when BOTH areas' verification commands pass.
 
-6. **Root `DECISIONS.md`** — decisions from this Q&A. Mark area-scoped decisions with the area name.
+6. **Root `DECISIONS.md`** — decisions made during this Q&A. Mark area-scoped decisions with the area name. Only log decisions that were actually made and have a real reason — no platitudes.
 
 7. **Root `QUALITY.md`** — placeholder, will score per-module across areas once features land.
 
 8. **Root `PROGRESS.md`** — state = "bootstrapped, no features started".
+
+**Open Questions discipline:** Only add an item to `PROGRESS.md` "Open Questions" if ALL of:
+- The answer was not given during the Q&A phase
+- Different answers produce meaningfully different harness files or architecture
+- The decision cannot be reasonably inferred from what the user said
+
+Do NOT add: preferences the user can trivially decide later ("drop Redis?"), decisions already implied by stack choices, or items that are uncertain but do not block harness generation. When in doubt — omit or decide and announce the default.
 
 ## Phase 3 — Bootstrap contract verification
 

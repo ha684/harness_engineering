@@ -24,6 +24,7 @@ Without modifying anything, gather:
 - **Directory layout** — top-level structure, where modules live, naming patterns within each area.
 - **Existing verification commands** — what does CI run? What scripts exist in `package.json` / `Makefile` / `tox.ini` / etc? Note area-specific targets (e.g. `test-be`, `test-fe`) vs unified targets.
 - **Implicit conventions** — read 3-5 representative source files per area. Note: error-handling style, dependency injection pattern, layering, test naming, import style.
+- **IaC tooling** (if infra/ area exists) — is there Terraform, CDK, Pulumi, or shell-only provisioning? What cloud target?
 - **README / existing docs** — extract any architecture decisions or constraints.
 - **Git log (last ~50 commits)** — what is being worked on? Are there in-flight branches / PRs?
 
@@ -32,6 +33,10 @@ After this phase, produce a **one-screen recon summary** with an explicit sectio
 ## Phase 2 — Fill the templates
 
 After I confirm the recon summary, propose updated versions of each file. **Show diffs, do not silently overwrite.**
+
+**AGENTS.md placement rule (applies everywhere):**
+Root `AGENTS.md` global constraints = **workflow + process rules only**: WIP=1, verification-before-done, branch/commit conventions, deploy approval gates.
+Technical rules (language version, framework conventions, async/sync, cloud/infra rules, lint config, region) belong in **area AGENTS.md** — not root. If a rule would not apply equally to every area, it goes in the area file.
 
 ### If single-area repo
 
@@ -53,6 +58,12 @@ Generate a tiered set. Order:
 1. **Root `AGENTS.md`** — project overview (the whole system), global constraints that apply to ALL areas (git conventions, security rules, PR process, deploy rules), quick start (`make setup && make check`), and a routing table listing each area with its specific AGENTS.md path and when to load it.
 
 2. **`<area>/AGENTS.md` per area** (e.g. `backend/AGENTS.md`, `frontend/AGENTS.md`, `infra/AGENTS.md`) — area-specific stack, constraints, and verification commands. Keep each under 150 lines. What belongs here: anything that only applies to this area (language version, framework conventions, area-specific lint rules, area-specific test commands).
+
+   **Deferred area pattern:** If an area directory exists but has little or no code (or the recon summary shows it is not yet active), generate a "deferred with trigger" placeholder — not a half-filled file:
+   - First line: `> **Status: intentionally deferred — not started yet.**`
+   - Proposed stack inferred from repo (mark as "proposed")
+   - Trigger block: the specific event that completes this file
+   A placeholder that looks unfinished is worse than no placeholder.
 
 3. **Root `Makefile`** — unified targets (`make setup`, `make check`) that delegate to area-specific targets, plus area targets (`make test-be`, `make test-fe`, `make lint-be`, etc.).
 

@@ -12,7 +12,7 @@ In this order:
 
 1. **Root `AGENTS.md`** — load global rules and the area routing table. Note which area-specific AGENTS.md files exist (e.g. `backend/AGENTS.md`, `frontend/AGENTS.md`, `infra/AGENTS.md`).
 2. `PROGRESS.md` — current state, active feature, immediate next steps.
-3. `DECISIONS.md` — active design constraints. Pay attention to "Deferred" entries.
+3. `DECISIONS.md` — active design constraints. For "Deferred" entries: check if the unblock condition is now met. If yes, flag it to the user before starting work — do not silently ignore a deferred decision that is now actionable.
 4. `features.md` — current feature states. Confirm WIP=1: at most one feature is `active`. Note the `Area` tag of the active (or next) feature.
 5. **Area-specific `AGENTS.md`** — if the active or next feature has an area tag (e.g. `[BE]`), read that area's AGENTS.md now (e.g. `backend/AGENTS.md`). If it is `[BOTH]`, read all relevant area files. Do not load areas unrelated to today's work.
 6. `QUALITY.md` — if any module touching today's work is rated C or D, factor that in.

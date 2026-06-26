@@ -61,9 +61,10 @@ If you added new dependencies, environment variables, or migrations, `make setup
 
 Once all five dimensions are PASS:
 
-1. **Commit.** Stage and commit any harness-state changes (`PROGRESS.md`, `features.md`, `DECISIONS.md`, `QUALITY.md`). Use a clear commit message. Do NOT use `git add -A` — stage specific files to avoid sweeping in stray artifacts.
-2. **Quality re-score (if applicable).** If this session significantly affected a module's quality (added/removed flaky tests, violated/restored boundaries), update `QUALITY.md`.
-3. **Summarize.** In your final message to the user, state:
+1. **Capture decisions.** Before committing, scan the conversation: were any non-trivial technical choices made during implementation that are not yet in `DECISIONS.md`? (IaC tool choice, strict vs standard typing, persistence strategy, third-party service selection, rejected alternatives.) Append them now — an informal decision that stays only in chat is lost at next session.
+2. **Commit.** Stage and commit any harness-state changes (`PROGRESS.md`, `features.md`, `DECISIONS.md`, `QUALITY.md`). Use a clear commit message. Do NOT use `git add -A` — stage specific files to avoid sweeping in stray artifacts.
+3. **Quality re-score (if applicable).** If this session significantly affected a module's quality (added/removed flaky tests, violated/restored boundaries), update `QUALITY.md`.
+4. **Summarize.** In your final message to the user, state:
    - Features moved to `passing` (with commit hash)
    - Features still `active` or `blocked` and why
    - Next session's first concrete action

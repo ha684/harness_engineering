@@ -36,7 +36,13 @@ After I confirm the recon summary, propose updated versions of each file. **Show
 
 **AGENTS.md placement rule (applies everywhere):**
 Root `AGENTS.md` global constraints = **workflow + process rules only**: WIP=1, verification-before-done, branch/commit conventions, deploy approval gates.
-Technical rules (language version, framework conventions, async/sync, cloud/infra rules, lint config, region) belong in **area AGENTS.md** — not root. If a rule would not apply equally to every area, it goes in the area file.
+Technical rules (language version, framework conventions, async/sync, cloud/infra rules, lint config, region) belong in **area AGENTS.md** — not root.
+
+**The litmus test — apply to every candidate global rule:** imagine a developer working *only* in the area least related to this rule (e.g. a frontend dev for a backend rule). Is the rule still true, actionable, and binding for them, word for word? If not → it goes in the area file. "Applies to most areas" is not global. "Will matter once other areas exist" is not global.
+
+**Beware dominant-area bias.** In most repos one area has the most code, the most git activity, and the most existing docs — the recon will naturally surface more rules from it, and it is tempting to promote them to root because they feel central. "Most evidence found" ≠ "global". A monorepo whose root AGENTS.md is 70% backend rules is a backend AGENTS.md wearing the wrong filename.
+
+Expect root global constraints to be short — typically 3-7 workflow rules. If the list is longer, something area-specific has leaked in.
 
 ### If single-area repo
 
@@ -56,6 +62,8 @@ Generate in this order:
 Generate a tiered set. Order:
 
 1. **Root `AGENTS.md`** — project overview (the whole system), global constraints that apply to ALL areas (git conventions, security rules, PR process, deploy rules), quick start (`make setup && make check`), and a routing table listing each area with its specific AGENTS.md path and when to load it.
+
+   **Self-check before presenting:** go through each Global Constraint one by one and annotate (to yourself) which areas it binds. Any rule you cannot honestly tag with *every* area moves to the relevant area's AGENTS.md before you show the file. When presenting, add one line under the constraints list: "Each rule above passed the all-areas litmus test." If you moved rules during this check, say which and where they went — the user should not have to hunt for them.
 
 2. **`<area>/AGENTS.md` per area** (e.g. `backend/AGENTS.md`, `frontend/AGENTS.md`, `infra/AGENTS.md`) — area-specific stack, constraints, and verification commands. Keep each under 150 lines. What belongs here: anything that only applies to this area (language version, framework conventions, area-specific lint rules, area-specific test commands).
 

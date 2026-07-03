@@ -44,6 +44,12 @@ If `make setup` does not produce a runnable environment from a fresh clone, the 
 <!--
   Non-negotiable rules. Maximum ~15 entries. Use MUST / MUST NOT.
   Every rule needs a reason (why it exists) so future agents can judge edge cases.
+
+  MONOREPO: this section holds workflow/process rules that bind EVERY area,
+  word for word — typically only 3-7. Litmus test: would this rule be true and
+  actionable for a developer who only ever touches the area least related to
+  it? If not, it belongs in that area's AGENTS.md, not here. Stack-specific
+  rules (async, framework, cloud, lint, region) are never global.
 -->
 
 - **MUST** use [convention X]. Why: [reason]

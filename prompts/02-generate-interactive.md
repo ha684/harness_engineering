@@ -33,7 +33,13 @@ After my answers, propose files in the order below. **Show each file's proposed 
 
 **AGENTS.md placement rule (applies everywhere):**
 Root `AGENTS.md` global constraints = **workflow + process rules only**: WIP=1, verification-before-done, branch/commit conventions, deploy approval gates, PR rules.
-Technical rules (language version, framework conventions, async/sync, cloud/infra rules, lint config, region) belong in **area AGENTS.md** — not root. If a rule would not apply equally to every area, it goes in the area file.
+Technical rules (language version, framework conventions, async/sync, cloud/infra rules, lint config, region) belong in **area AGENTS.md** — not root.
+
+**The litmus test — apply to every candidate global rule:** imagine a developer working *only* in the area least related to this rule (e.g. a frontend dev for a backend rule). Is the rule still true, actionable, and binding for them, word for word? If not → it goes in the area file. "Applies to most areas" is not global. "Will matter once other areas exist" is not global.
+
+**Beware first-area bias.** The user will talk most about the area they are building first — that makes the Q&A content skew toward it, and it is tempting to promote that area's rules to root because they feel central. "Discussed the most" ≠ "global". A monorepo whose root AGENTS.md is 70% backend rules is a backend AGENTS.md wearing the wrong filename.
+
+Expect root global constraints to be short — typically 3-7 workflow rules. If the list is longer, something area-specific has leaked in.
 
 ### If single-area
 
@@ -58,6 +64,8 @@ Generate in this order:
    - Working in infra/ → also read infra/AGENTS.md
    - Cross-area change → read all relevant area AGENTS.md files
    ```
+
+   **Self-check before presenting:** go through each Global Constraint one by one and annotate (to yourself) which areas it binds. Any rule you cannot honestly tag with *every* area moves to the relevant area's AGENTS.md before you show the file. When presenting, add one line under the constraints list: "Each rule above passed the all-areas litmus test." If you moved rules during this check, say which and where they went — the user should not have to hunt for them.
 
 2. **`<area>/AGENTS.md` per area** — area-specific stack, constraints, verification commands. Under 150 lines each. Only rules that differ from or add to the root.
 

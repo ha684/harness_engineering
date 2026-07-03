@@ -2,7 +2,11 @@
 
 <!--
   Design decision log (lecture 05).
-  Append-only. Never delete entries — supersede them with new entries that reference the old one.
+  Never delete a decision — supersede it with a new entry that references the old one.
+  But DO compress: once a decision is settled and no longer actively debated,
+  tighten it to the essential Decision / Reason / Rejected / Constraint lines.
+  Keep the record that the decision exists and its supersession chain — only
+  shorten the prose. The most recent 1-2 decisions may stay full-length.
 
   Each entry must have:
     - Date
@@ -11,8 +15,17 @@
     - Rejected alternatives + why
     - Constraints / consequences for future work
 
-  Why? Because the next agent session cannot ask "why did we choose X over Y."
-  If the reason is not here, the new session may re-decide and pick differently.
+  Why keep the record? Because the next agent session cannot ask "why did we
+  choose X over Y." If the reason is not here, the new session may re-decide
+  and pick differently.
+
+  Why compress? Because this file is read at the start of every session — a
+  settled decision's extended discussion is context spent on something no one
+  is deciding anymore.
+
+  When Superseded grows past ~5 entries, move the oldest to
+  docs/decisions-archive.md (create it if needed). Agents do not read the
+  archive unless investigating history.
 -->
 
 ## Active Decisions
@@ -39,10 +52,12 @@
 
 <!--
   When a new decision replaces an old one, move the old one here with a reference.
+  Compress superseded entries hard — the replacing decision carries the live
+  reasoning, so a superseded entry only needs: what it was + why it was replaced.
   Format:
     ### YYYY-MM-DD (superseded YYYY-MM-DD): old decision title
-    [original entry]
-    **Superseded by:** [new decision title]
+    - **Decision:** [one line]
+    - **Why superseded:** [one line — see the replacing entry for full reasoning]
 -->
 
 (none yet)

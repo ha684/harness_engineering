@@ -37,6 +37,15 @@ Open `PROGRESS.md` and confirm:
 - [ ] "Next Steps" gives the next session a concrete first action (not vague — "fix the bug" is wrong; "investigate why test_create_user fails with empty payload, see line 47" is right)
 - [ ] "Session History" has an entry for this session
 
+**Then compact.** State files are read at the start of every future session — every stale line is a recurring context tax. As part of this dimension:
+
+- Compress Session History entries older than the most recent 1-2 to a single line each: `date — what shipped → verification result`, with a pointer (DECISIONS.md entry, docs/ file, commit hash) for anything worth keeping in detail.
+- Compress "Completed" bullets to one line per feature — no test counts, no file lists (features.md Evidence + git log carry those).
+- In `DECISIONS.md`: tighten settled decisions (no longer actively debated) to the essential Decision / Reason / Rejected / Constraint lines. Compress Superseded entries hardest — one line for what it was, one for why it was replaced. Never delete a decision or break a supersession chain — only shorten prose. If Superseded exceeds ~5 entries, move the oldest to `docs/decisions-archive.md`.
+- Do not restate across files what one file already owns: PROGRESS points to DECISIONS for reasoning, to QUALITY for module health, to docs/ for mechanisms.
+
+Rough size targets: PROGRESS.md under ~100 lines, DECISIONS.md active section under ~150. If a file is well past target, compact it now — do not defer to a "cleanup later" that never comes.
+
 ### 4. No stale artifacts
 
 Search changed files for:

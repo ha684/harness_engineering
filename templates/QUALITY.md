@@ -38,7 +38,10 @@
 ## History
 
 <!--
-  Append-only. One line per score change.
+  One line per score CHANGE — do not log "kept A" every session; merge unchanged
+  streaks into one line ("2026-06-30 to 2026-07-02 — backend/app kept A through
+  F02-F05"). The Score Details section above is the living snapshot; this log
+  only shows the trend.
   Format: YYYY-MM-DD — module — old → new — reason
 -->
 

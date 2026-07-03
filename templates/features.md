@@ -51,7 +51,12 @@
 
 ## Passing (this milestone)
 
-<!-- Completed features. Move to docs/changelog.md when this section exceeds ~20 entries. -->
+<!--
+  Do NOT keep a prose log of passing features here — the Feature List table's
+  State + Evidence columns are the single source of truth; a prose copy only
+  grows unbounded. Use this section only for a note the table cannot hold
+  (rare). Usually stays "(none)".
+-->
 
 (none yet)
 

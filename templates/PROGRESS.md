@@ -5,8 +5,15 @@
   This file is the single source of truth for "where are we right now."
   Updated at the START and END of every session.
 
-  Target length: keep it under 200 lines. Archive old entries to docs/changelog.md
-  if this grows too long.
+  CONTEXT BUDGET — this file is read at the start of EVERY session, so every
+  stale line here is a tax on every future session:
+  - Target length: under ~100 lines.
+  - Only the most recent 1-2 session entries stay full-length. Compress older
+    ones to a single line as part of session exit — do not wait for a cleanup pass.
+  - Never restate detail that lives elsewhere: point to DECISIONS.md for design
+    reasoning, QUALITY.md for module health, docs/ for mechanisms. One pointer
+    beats three paragraphs.
+  - Archive to docs/changelog.md when a milestone closes.
 -->
 
 ## Current State
@@ -19,7 +26,10 @@
 
 ## Completed (this milestone)
 
-<!-- Bullet list of features moved to `passing` since the last milestone. -->
+<!--
+  One line per completed feature: "F0X [AREA] — what shipped". No test counts,
+  no file lists — the Evidence column in features.md and the git log carry that.
+-->
 
 - [ ] TODO: add completed features here
 
@@ -62,8 +72,11 @@
 ## Session History
 
 <!--
-  Append-only log. One short line per session. Format:
-    YYYY-MM-DD HH:MM — <agent/session id> — <one-line summary>
+  One line per session: YYYY-MM-DD — <what shipped> → <verification result>.
+  Only the most recent 1-2 entries may be longer than one line. At session exit,
+  compress anything older: fold detail into a pointer (DECISIONS.md, docs/,
+  commit hash) — the detail is not lost, it just does not need to be re-read
+  every session.
 -->
 
 - TODO: first entry on next session

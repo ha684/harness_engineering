@@ -45,7 +45,7 @@ Expect root global constraints to be short — typically 3-7 workflow rules. If 
 
 1. `AGENTS.md` — overview, stack, hard constraints, working style, verification commands. Under 200 lines.
 2. `Makefile` — concrete commands: setup, dev, test, lint, typecheck, e2e, check. Ask if unsure — never invent a command.
-3. `features.md` — 3-5 features with verification commands. All `not_started`.
+3. `features.md` — 3-5 features with verification commands. All `not_started`. Name the table's milestone (e.g. "M1 — core API"). Any features the user mentioned beyond the initial scope go to the Backlog section as one-liners (no verification command, no state) — the table holds only the current milestone.
 4. `docs/architecture.md` — starting architecture + dependency rules. Confirm before writing. Include a module map: one line per planned module stating where responsibility will live (e.g. `app/repo/ — data access, one file per store`). This map is the navigation index future sessions use to find their touch zone without scanning; it gets a line added whenever a session adds a file.
 5. `docs/testing.md` — adapted to the chosen test framework.
 6. `DECISIONS.md` — decisions made during this Q&A with reasons.
@@ -82,7 +82,7 @@ Generate in this order:
 
 4. **`<area>/docs/architecture.md` per area** — that area's module map and layer rules. Module map format: one line per planned module stating where responsibility will live — the navigation index future sessions use to find their touch zone without scanning. Not file contents (functions, signatures); those rot.
 
-5. **Root `features.md`** — all features with an `Area` column: `[BE]`, `[FE]`, `[BOTH]`, or area name. `[BOTH]` features only reach `passing` when BOTH areas' verification commands pass.
+5. **Root `features.md`** — all features with an `Area` column: `[BE]`, `[FE]`, `[BOTH]`, or area name. `[BOTH]` features only reach `passing` when BOTH areas' verification commands pass. Name the table's milestone; the table holds only the current milestone's features (~10-20 rows). Everything else the user mentioned goes to the Backlog section as one-liners.
 
 6. **Root `DECISIONS.md`** — decisions made during this Q&A. Mark area-scoped decisions with the area name. Only log decisions that were actually made and have a real reason — no platitudes.
 

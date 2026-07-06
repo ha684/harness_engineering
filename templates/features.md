@@ -20,15 +20,36 @@
   Granularity guideline: each feature should be completable in one session.
   Too broad ("implement the shopping cart") — break it down.
   Too narrow ("add the name field") — bundle related changes.
+
+  SIZE CONTROL — this file is read every session; the table must stay small:
+  - The Feature List table holds the CURRENT MILESTONE only (~10-20 rows).
+  - Ideas not scheduled yet go to Backlog below as one-liners — no verification
+    command, no full row. Promote to the table when the milestone starts.
+  - When a milestone closes (all its features passing), move its rows to
+    docs/features-archive.md verbatim (IDs, evidence and all). IDs are never
+    reused or renumbered — the archive preserves them. Numbering continues
+    from where it left off (archive ends at F20 → next feature is F21).
 -->
 
-## Feature List
+## Feature List (current milestone: TODO — name it)
 
 | ID | Behavior | Verification | State | Area | Evidence |
 |---|---|---|---|---|---|
 | F01 | TODO: one-line behavior description | TODO: executable command | not_started | — | — |
 | F02 | TODO | TODO | not_started | — | — |
 | F03 | TODO | TODO | not_started | — | — |
+
+## Backlog (not scheduled — one line each)
+
+<!--
+  Ideas and future features. NO verification commands, NO states — those get
+  written when the item is promoted into the Feature List for a milestone.
+  Keeping them as one-liners means 50 backlog ideas cost 50 lines, not 50 rows
+  of half-filled table. Group by theme or phase if it helps.
+-->
+
+- TODO: e.g. "Push notifications when recipient offline (Phase 3)"
+- TODO: e.g. "Message search across conversations"
 
 ## Active
 
@@ -86,3 +107,13 @@
 ### Don't fake state
 
 If verification fails, the feature stays `active` or moves to `blocked`. Never set `passing` based on "the code looks fine" — that defeats the entire harness (lecture 09).
+
+### Closing a milestone
+
+When every feature in the current milestone is `passing` (human confirms — this is a judgment call, not an automatic trigger):
+
+1. Move all the milestone's rows to `docs/features-archive.md` verbatim, under a heading with the milestone name and date range.
+2. Promote the next batch from Backlog into the table: write their verification commands and set `not_started`.
+3. Rename the table heading to the new milestone.
+
+The archive is append-only history; agents do not read it during sessions. If a regression investigation needs an old feature's verification command, it is there.

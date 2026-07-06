@@ -46,6 +46,8 @@ Open `PROGRESS.md` and confirm:
 
 **Then check the module map.** If this session added, moved, renamed, or deleted source files, update the module map in the area's `docs/architecture.md`: one line per module/file stating its responsibility. A stale map is worse than no map — the next session trusts it and goes to the wrong place. Keep entries at the "where responsibility lives" level; do not describe file contents (functions, signatures) — that detail changes every session and rots.
 
+**Then check the milestone.** If every feature in the current `features.md` milestone is now `passing`, tell the user the milestone looks complete and ask whether to close it (move its rows to `docs/features-archive.md` and promote the next batch from Backlog — see "Closing a milestone" in features.md). Closing is the user's call, not yours — but noticing is your job. Likewise, if the Feature List table has grown past ~20 rows mid-milestone, suggest splitting it.
+
 Rough size targets: PROGRESS.md under ~100 lines, DECISIONS.md active section under ~150. If a file is well past target, compact it now — do not defer to a "cleanup later" that never comes.
 
 ### 4. No stale artifacts

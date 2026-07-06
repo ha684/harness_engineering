@@ -52,7 +52,7 @@ Generate in this order:
 2. `Makefile` — replace each TODO with the real command. Test that each target actually works.
 3. `docs/architecture.md` — module map, dependency rules, invariants. Cite file paths. The module map is the agent's navigation index: one line per module (or key file) stating **where responsibility lives** — e.g. `app/repo/fanout.py — Redis pub/sub publisher + subscriber`. Do NOT describe file contents (functions, signatures) — that rots within sessions; responsibility placement is stable.
 4. `docs/testing.md` — test framework, conventions, verification command shapes.
-5. `features.md` — propose 5-10 features. Each needs a real verification command. All `not_started` unless proven passing.
+5. `features.md` — propose 5-10 features. Each needs a real verification command. All `not_started` unless proven passing. Name the table's milestone; anything beyond the near-term scope goes to the Backlog section as one-liners (no verification command yet) — the table holds only the current milestone.
 6. `DECISIONS.md` — pull design decisions from README, ADRs, prominent comments. Cite the source.
 7. `QUALITY.md` — initial scoring of top-level modules. Default to B unless evidence says otherwise.
 8. `PROGRESS.md` — current commit, build/test status, next steps = "review and adjust the harness files".
@@ -79,7 +79,7 @@ Generate a tiered set. Order:
 
 5. **Root `docs/architecture.md`** — cross-area diagram only: how areas communicate (API contracts, message queues, shared schemas). Do not duplicate area-internal details.
 
-6. **Root `features.md`** — all features, each with an `Area` column tagged `[BE]`, `[FE]`, `[BOTH]`, or the relevant area name. Features tagged `[BOTH]` require both areas' verification commands to pass before marking `passing`.
+6. **Root `features.md`** — all features, each with an `Area` column tagged `[BE]`, `[FE]`, `[BOTH]`, or the relevant area name. Features tagged `[BOTH]` require both areas' verification commands to pass before marking `passing`. Name the table's milestone; the table holds only the current milestone (~10-20 rows), everything else goes to Backlog as one-liners.
 
 7. **Root `DECISIONS.md`**, `QUALITY.md`, `PROGRESS.md` — same as single-area, but QUALITY.md scores modules across all areas.
 

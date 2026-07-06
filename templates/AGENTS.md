@@ -94,7 +94,7 @@ TODO: list your project's non-negotiable rules.
 1. Run `make check-<area>` or `make check` — all must pass
 2. Update `PROGRESS.md` with what was done + immediate next steps
 3. Remove temporary files, debug logs, commented-out code
-4. Commit all completed work with a descriptive message
+4. Report which files changed this session — the user handles version control; do not run git write operations (add / commit / push)
 
 ## State Files
 

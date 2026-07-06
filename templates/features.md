@@ -81,7 +81,7 @@
 1. Pick the next `not_started` feature (or whichever ID the session is targeting).
 2. Set state to `active`. **Confirm no other feature is currently `active`** (WIP=1).
 3. Implement.
-4. Run the verification command. If it passes, set state to `passing` and record the commit hash in Evidence. If it fails, fix and re-run. If it cannot be unblocked, set state to `blocked` with the reason.
+4. Run the verification command. If it passes, set state to `passing` and record the evidence (verification result summary; the user adds the commit hash after they commit). If it fails, fix and re-run. If it cannot be unblocked, set state to `blocked` with the reason.
 
 ### Don't fake state
 

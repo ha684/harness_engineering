@@ -70,12 +70,12 @@ If you added new dependencies, environment variables, or migrations, `make setup
 
 Once all five dimensions are PASS:
 
-1. **Capture decisions.** Before committing, scan the conversation: were any non-trivial technical choices made during implementation that are not yet in `DECISIONS.md`? (IaC tool choice, strict vs standard typing, persistence strategy, third-party service selection, rejected alternatives.) Append them now — an informal decision that stays only in chat is lost at next session.
-2. **Commit.** Stage and commit any harness-state changes (`PROGRESS.md`, `features.md`, `DECISIONS.md`, `QUALITY.md`). Use a clear commit message. Do NOT use `git add -A` — stage specific files to avoid sweeping in stray artifacts.
-3. **Quality re-score (if applicable).** If this session significantly affected a module's quality (added/removed flaky tests, violated/restored boundaries), update `QUALITY.md`.
-4. **Summarize.** In your final message to the user, state:
-   - Features moved to `passing` (with commit hash)
+1. **Capture decisions.** Scan the conversation: were any non-trivial technical choices made during implementation that are not yet in `DECISIONS.md`? (IaC tool choice, strict vs standard typing, persistence strategy, third-party service selection, rejected alternatives.) Append them now — an informal decision that stays only in chat is lost at next session.
+2. **Quality re-score (if applicable).** If this session significantly affected a module's quality (added/removed flaky tests, violated/restored boundaries), update `QUALITY.md`.
+3. **Summarize.** In your final message to the user, state:
+   - Features moved to `passing`
    - Features still `active` or `blocked` and why
+   - Which files changed this session (code + harness-state files) — the user handles version control themselves; do not run any git write operations (add / commit / push)
    - Next session's first concrete action
    - Anything the user needs to decide before next session
 
@@ -83,6 +83,6 @@ Once all five dimensions are PASS:
 
 - **Hand-waving on dimension 3.** "I updated PROGRESS.md" — did you, or did you generalize? Re-read it. Would a fresh agent know exactly what to do next?
 - **Skipping the verification re-run on features marked passing.** Verification can be flaky or environment-dependent. Re-running it confirms the feature is durably done.
-- **Committing without inspection.** `git diff` everything you are about to commit. If you do not understand a change in the diff, that is a signal something happened that you did not notice.
+- **Exiting without inspecting the diff.** Review every file you changed this session. If you do not understand a change in the diff, that is a signal something happened that you did not notice.
 
 Begin dimension 1 now.

@@ -163,7 +163,7 @@ Then fill in TASK.md "Evidence" section:
 ## Evidence
 
 - Completion date: [today]
-- Commit hash: [run git log -1 --oneline]
+- Delivered state: [list the files changed; include a commit hash only if the client explicitly asked you to commit — do not run git write operations on your own]
 - Verification command output:
   [paste last 20-30 lines — include test count summary, not just "ok"]
 - make check status: [passing / N failures]

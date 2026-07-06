@@ -128,7 +128,7 @@ The contractor confirms before submitting:
 ## Evidence *(filled by contractor)*
 
 - **Completion date:** YYYY-MM-DD
-- **Commit hash:** TODO
+- **Delivered state:** TODO (files changed; commit hash only if the client asked for a commit)
 - **Verification command output:**
 
 ```

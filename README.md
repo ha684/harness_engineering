@@ -39,7 +39,8 @@ harness_engineering/
 │   ├── 03-session-start.md          # Clock-in routine
 │   ├── 04-session-exit.md           # Clock-out (clean handoff)
 │   ├── 05-generate-task-brief.md    # Generate a TASK.md for outsourcing (client side)
-│   └── 06-task-intake.md            # Receive + plan + implement + verify a task (contractor side)
+│   ├── 06-task-intake.md            # Receive + plan + implement + verify a task (contractor side)
+│   └── 07-acceptance-review.md      # Independent evaluator — QA in a fresh session (never the one that built it)
 ├── examples/
 │   └── fastapi-todo/         # Fully filled-in worked example to study
 │       ├── AGENTS.md, PROGRESS.md, DECISIONS.md, features.md, QUALITY.md, Makefile

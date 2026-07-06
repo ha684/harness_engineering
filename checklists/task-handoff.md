@@ -33,6 +33,8 @@
 
 ## Post-delivery (contractor → client review)
 
+> **Tip:** the review below can be delegated — run `prompts/07-acceptance-review.md` in a **fresh agent session** (never the one that implemented the task). It runs the mechanical checks, exercises every acceptance criterion through the running app, hunts for stubs and edge-case failures, and returns an ACCEPT/REJECT report with actionable findings.
+
 ### First, mechanical checks
 
 ```bash

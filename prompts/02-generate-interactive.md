@@ -46,7 +46,7 @@ Expect root global constraints to be short — typically 3-7 workflow rules. If 
 1. `AGENTS.md` — overview, stack, hard constraints, working style, verification commands. Under 200 lines.
 2. `Makefile` — concrete commands: setup, dev, test, lint, typecheck, e2e, check. Ask if unsure — never invent a command.
 3. `features.md` — 3-5 features with verification commands. All `not_started`.
-4. `docs/architecture.md` — starting architecture + dependency rules. Confirm before writing.
+4. `docs/architecture.md` — starting architecture + dependency rules. Confirm before writing. Include a module map: one line per planned module stating where responsibility will live (e.g. `app/repo/ — data access, one file per store`). This map is the navigation index future sessions use to find their touch zone without scanning; it gets a line added whenever a session adds a file.
 5. `docs/testing.md` — adapted to the chosen test framework.
 6. `DECISIONS.md` — decisions made during this Q&A with reasons.
 7. `QUALITY.md` — placeholder. Note: "modules scored after first features land."
@@ -80,7 +80,7 @@ Generate in this order:
 
 3. **Root `Makefile`** — unified targets (`make setup`, `make check`) plus area-specific targets (`make test-be`, `make test-fe`, `make lint-be`, `make lint-fe`, etc.).
 
-4. **`<area>/docs/architecture.md` per area** — that area's module map and layer rules.
+4. **`<area>/docs/architecture.md` per area** — that area's module map and layer rules. Module map format: one line per planned module stating where responsibility will live — the navigation index future sessions use to find their touch zone without scanning. Not file contents (functions, signatures); those rot.
 
 5. **Root `features.md`** — all features with an `Area` column: `[BE]`, `[FE]`, `[BOTH]`, or area name. `[BOTH]` features only reach `passing` when BOTH areas' verification commands pass.
 

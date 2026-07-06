@@ -44,6 +44,8 @@ Open `PROGRESS.md` and confirm:
 - In `DECISIONS.md`: tighten settled decisions (no longer actively debated) to the essential Decision / Reason / Rejected / Constraint lines. Compress Superseded entries hardest — one line for what it was, one for why it was replaced. Never delete a decision or break a supersession chain — only shorten prose. If Superseded exceeds ~5 entries, move the oldest to `docs/decisions-archive.md`.
 - Do not restate across files what one file already owns: PROGRESS points to DECISIONS for reasoning, to QUALITY for module health, to docs/ for mechanisms.
 
+**Then check the module map.** If this session added, moved, renamed, or deleted source files, update the module map in the area's `docs/architecture.md`: one line per module/file stating its responsibility. A stale map is worse than no map — the next session trusts it and goes to the wrong place. Keep entries at the "where responsibility lives" level; do not describe file contents (functions, signatures) — that detail changes every session and rots.
+
 Rough size targets: PROGRESS.md under ~100 lines, DECISIONS.md active section under ~150. If a file is well past target, compact it now — do not defer to a "cleanup later" that never comes.
 
 ### 4. No stale artifacts

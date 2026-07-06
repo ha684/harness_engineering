@@ -47,7 +47,7 @@ make check        # must be green before reading anything else
 
 ### Then, quality checks
 
-- [ ] Evidence section in TASK.md is filled (commit hash + test output)
+- [ ] Evidence section in TASK.md is filled (delivered state: changed files or commit ref + test output)
 - [ ] No debug code in diff (`console.log`, `breakpoint()`, `print("DEBUG"...)`)
 - [ ] No new `TODO` or `FIXME` added without a corresponding entry in DECISIONS.md → Deferred
 - [ ] New tests follow project testing standards (docs/testing.md)

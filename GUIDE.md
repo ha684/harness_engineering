@@ -288,7 +288,7 @@ Contractor (doing the work):
   2. Run make setup to verify environment
   3. Implement against TASK.md acceptance criteria
   4. Run the verification command — must exit 0
-  5. Fill in TASK.md "Evidence" section (commit hash + test output snippet)
+  5. Fill in TASK.md "Evidence" section (changed files + test output snippet)
   6. Deliver: code + completed TASK.md
 
 Client (after receiving):

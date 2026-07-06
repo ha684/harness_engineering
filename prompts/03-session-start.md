@@ -1,6 +1,6 @@
 # Prompt: Session start (clock in)
 
-> **How to use:** Paste this at the start of every agent session in a harnessed project. Optional: wire it as a startup hook so it runs automatically.
+> **How to use:** Paste this at the start of every agent session in a harnessed project. Optional: save it as a project slash command (e.g. `.claude/commands/session-start.md` for Claude Code) so it becomes `/session-start`.
 
 ---
 
@@ -15,7 +15,8 @@ In this order:
 3. `DECISIONS.md` — read "Active Decisions" and "Deferred Items" only; skip "Superseded Decisions" and any `docs/decisions-archive.md` (history, not current constraints). For "Deferred" entries: check if the unblock condition is now met. If yes, flag it to the user before starting work — do not silently ignore a deferred decision that is now actionable.
 4. `features.md` — current feature states. Confirm WIP=1: at most one feature is `active`. Note the `Area` tag of the active (or next) feature.
 5. **Area-specific `AGENTS.md`** — if the active or next feature has an area tag (e.g. `[BE]`), read that area's AGENTS.md now (e.g. `backend/AGENTS.md`). If it is `[BOTH]`, read all relevant area files. Do not load areas unrelated to today's work.
-6. `QUALITY.md` — if any module touching today's work is rated C or D, factor that in.
+6. **Area's `docs/architecture.md` (module map)** — before opening any source file, use the module map to locate the feature's touch zone: which modules own the responsibility this feature changes. Then read only the files in that zone. Do not scan the codebase broadly when the map already answers "where" — and conversely, do read every file you are about to modify; the map tells you where responsibility lives, the code tells you what is actually there.
+7. `QUALITY.md` — if any module touching today's work is rated C or D, factor that in.
 
 If `AGENTS.md` does not exist, **stop**. The repo is not properly harnessed yet. Ask the user whether to bootstrap (see `prompts/02-generate-interactive.md`).
 

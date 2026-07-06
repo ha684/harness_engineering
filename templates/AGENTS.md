@@ -37,7 +37,7 @@ make test         # Run test suite
 make check        # Full verification (lint + typecheck + test)
 ```
 
-If `make setup` does not produce a runnable environment from a fresh clone, the bootstrap contract is broken — fix that before anything else (see `checklists/bootstrap-contract.md`).
+If `make setup` does not produce a runnable environment from a fresh clone, the bootstrap contract is broken — fix that before anything else. (Bootstrap contract: `make setup` works from fresh clone; `make test` has ≥1 passing test; a new session can answer what/how-to-run/how-to-verify/where-are-we from repo files alone; `features.md` has ≥3 features with verification commands.)
 
 ## Hard Constraints
 
@@ -78,17 +78,18 @@ TODO: list your project's non-negotiable rules.
 - **WIP = 1.** Only one feature is `active` in `features.md` at any time — across all areas. Do not start a new feature while another is active. (lecture 07)
 - **Verification before declaring done.** A feature moves to `passing` only when its verification command actually runs and succeeds. "The code looks fine" is not evidence. (lectures 09, 10)
 - **No drive-by refactors.** If you spot unrelated cleanup, add a note in `DECISIONS.md` under "Deferred" and continue with the current feature.
-- **Clean exit.** Before ending a session, all five clean-state dimensions must hold (see `checklists/session-exit.md`).
+- **Clean exit.** Before ending a session, all five clean-state dimensions must hold: build green, tests green, `PROGRESS.md` updated, no stale artifacts (debug prints, temp files, commented-out blocks), standard startup path (`make setup` / `make dev`) still works.
 
 ## Session Lifecycle
 
 **At session start (clock in):**
 1. Read this file — note the Area Routing table
 2. Read `PROGRESS.md` for current state and next steps
-3. Read `DECISIONS.md` for active design constraints
+3. Read `DECISIONS.md` for active design constraints (Active + Deferred only)
 4. Read `features.md` — pick the next `not_started` feature, note its Area tag
 5. Load area-specific AGENTS.md for that area (monorepo only; skip if single-area)
-6. Run `make check-<area>` (monorepo) or `make check` (single-area) — must be green
+6. Use the module map in the area's `docs/architecture.md` to locate the feature's touch zone — read only those files, not the whole codebase
+7. Run `make check-<area>` (monorepo) or `make check` (single-area) — must be green
 
 **Before session exit (clock out):**
 1. Run `make check-<area>` or `make check` — all must pass

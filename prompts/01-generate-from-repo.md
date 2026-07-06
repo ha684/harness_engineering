@@ -50,7 +50,7 @@ Generate in this order:
 
 1. `AGENTS.md` — overview, stack with versions, hard constraints, working style, topic doc links, verification commands.
 2. `Makefile` — replace each TODO with the real command. Test that each target actually works.
-3. `docs/architecture.md` — module map, dependency rules, invariants. Cite file paths.
+3. `docs/architecture.md` — module map, dependency rules, invariants. Cite file paths. The module map is the agent's navigation index: one line per module (or key file) stating **where responsibility lives** — e.g. `app/repo/fanout.py — Redis pub/sub publisher + subscriber`. Do NOT describe file contents (functions, signatures) — that rots within sessions; responsibility placement is stable.
 4. `docs/testing.md` — test framework, conventions, verification command shapes.
 5. `features.md` — propose 5-10 features. Each needs a real verification command. All `not_started` unless proven passing.
 6. `DECISIONS.md` — pull design decisions from README, ADRs, prominent comments. Cite the source.
@@ -75,7 +75,7 @@ Generate a tiered set. Order:
 
 3. **Root `Makefile`** — unified targets (`make setup`, `make check`) that delegate to area-specific targets, plus area targets (`make test-be`, `make test-fe`, `make lint-be`, etc.).
 
-4. **`<area>/docs/architecture.md` per area** — module map and dependency rules for that area. Cite file paths.
+4. **`<area>/docs/architecture.md` per area** — module map and dependency rules for that area. Cite file paths. Module map format: one line per module/key file stating where responsibility lives (not file contents — those rot; responsibility placement is stable). This map is what lets future sessions find their touch zone without scanning the codebase.
 
 5. **Root `docs/architecture.md`** — cross-area diagram only: how areas communicate (API contracts, message queues, shared schemas). Do not duplicate area-internal details.
 

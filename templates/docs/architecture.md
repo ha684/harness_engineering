@@ -17,6 +17,17 @@ TODO: one paragraph describing the high-level system. What are the major compone
 
 ## Module Map
 
+<!--
+  This is the NAVIGATION INDEX — the map a session uses to find its touch zone
+  without scanning the codebase. One line per module (or key file) stating
+  WHERE RESPONSIBILITY LIVES. Do not describe file contents (functions,
+  signatures) — that rots within sessions; responsibility placement is stable.
+
+  MAINTENANCE: whenever a session adds/moves/renames/deletes a source file,
+  it must update this map at session exit. A stale map is worse than no map —
+  the next session trusts it and goes to the wrong place.
+-->
+
 ```
 TODO: ASCII or directory tree showing top-level modules
 
@@ -25,6 +36,14 @@ src/
 ├── service/    # Business logic — orchestrates repos, enforces invariants
 ├── repo/       # Data access — only place that talks to the database
 └── types/      # Shared type definitions
+```
+
+As modules grow, break the tree down to key files with one-line responsibilities:
+
+```
+repo/
+├── messages.py   # DynamoDB message store — sequence assignment, cursor pagination
+└── fanout.py     # Redis pub/sub — publisher + ref-counted subscriber
 ```
 
 ## Dependency Rules

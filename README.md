@@ -31,7 +31,8 @@ harness_engineering/
 │   ├── QUALITY.md            # Per-module quality tracker
 │   ├── Makefile              # Standardized commands
 │   ├── docs/                 # Topic docs (loaded on demand)
-│   └── scripts/              # Verification + session-exit checks
+│   ├── scripts/              # Verification + session-exit checks
+│   └── .claude/commands/     # Claude Code slash commands (/session-start, /session-exit)
 ├── prompts/                  # PASTE THESE into an agent to generate filled files
 │   ├── 01-generate-from-repo.md     # Existing projects (agent scans code)
 │   ├── 02-generate-interactive.md   # Greenfield (agent asks you)

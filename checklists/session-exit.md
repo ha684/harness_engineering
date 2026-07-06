@@ -58,17 +58,9 @@ If found, remove. **Do not commit them with a "clean up next session" plan.**
 
 ## Final actions (after all five pass)
 
-### 1. Commit
+### 1. Report changed files
 
-Stage specific files (do NOT `git add -A`):
-
-```bash
-git add <changed-source-files>
-git add PROGRESS.md features.md DECISIONS.md QUALITY.md  # harness state
-git commit -m "<descriptive message>"
-```
-
-Commit message style: imperative, mentions feature ID if applicable.
+The user handles version control — do not run git write operations (add / commit / push). Instead, list every file changed this session (source + harness state: `PROGRESS.md`, `features.md`, `DECISIONS.md`, `QUALITY.md`) so the user can review and commit. Suggest a commit message: imperative, mentions feature ID if applicable.
 - Good: `feat(F04): filter tasks by status — passes integration tests`
 - Bad: `update stuff`
 
@@ -84,13 +76,14 @@ If this session significantly affected a module's quality, update `QUALITY.md`:
 
 Final message should state:
 
-- What was completed (with commit hashes)
+- What was completed
 - What is still in progress or blocked, and why
+- Which files changed (ready for the user to review and commit)
 - The next session's first concrete action
 - Anything the human needs to decide before next session can proceed
 
 ## Anti-patterns
 
-- **"I'll commit it as WIP and clean up later."** Lecture 12: clean up later means never. The next session inherits the mess and has its own work to do; it will pile on top.
+- **"I'll leave it as WIP and clean up later."** Lecture 12: clean up later means never. The next session inherits the mess and has its own work to do; it will pile on top.
 - **"The build is red but my changes are unrelated."** Then your session is leaving the build red. That is dimension 1 failing. Fix it, or revert.
 - **"PROGRESS.md is mostly the same."** Mostly is not enough. The next session reads this file as the single source of truth — if it does not reflect reality, the next session diverges from reality.

@@ -111,6 +111,14 @@ TODO: list your project's non-negotiable rules.
 <!--
   One-line entries: title, link, applicability condition.
   The agent should load these only when relevant to the current task.
+
+  Growth rules — both directions:
+  - Extract a topic out of this file when its section passes ~30 lines.
+  - But NO thin pages: do not create a docs/<topic>.md that would mostly be a
+    stub or a short note — leave the content here (or in an existing doc) until
+    it is substantial enough to stand alone.
+  - One canonical home per concept: a mechanism is explained in exactly one
+    doc; everywhere else links to it. Duplicated explanations drift apart.
 -->
 
 - [Architecture](docs/architecture.md) — Read before any cross-module changes

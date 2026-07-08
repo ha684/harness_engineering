@@ -44,7 +44,12 @@ Open `PROGRESS.md` and confirm:
 - In `DECISIONS.md`: tighten settled decisions (no longer actively debated) to the essential Decision / Reason / Rejected / Constraint lines. Compress Superseded entries hardest — one line for what it was, one for why it was replaced. Never delete a decision or break a supersession chain — only shorten prose. If Superseded exceeds ~5 entries, move the oldest to `docs/decisions-archive.md`.
 - Do not restate across files what one file already owns: PROGRESS points to DECISIONS for reasoning, to QUALITY for module health, to docs/ for mechanisms.
 
-**Then check the module map.** If this session added, moved, renamed, or deleted source files, update the module map in the area's `docs/architecture.md`: one line per module/file stating its responsibility. A stale map is worse than no map — the next session trusts it and goes to the wrong place. Keep entries at the "where responsibility lives" level; do not describe file contents (functions, signatures) — that detail changes every session and rots.
+**Then check docs impact.** Build a quick impact plan from this session's changed files: `source change → doc affected → edit needed → why`. Cover the module map in `docs/architecture.md` (files added/moved/renamed/deleted), and any topic doc whose statements this session made inaccurate. Then edit **surgically**:
+
+- Only touch docs the plan says are now inaccurate, incomplete, or misleading — do not refresh pages for freshness's sake.
+- Prefer replacing one stale sentence over adding new paragraphs.
+- A no-op is a valid outcome: if nothing this session made any doc wrong, change nothing.
+- A stale map is worse than no map — the next session trusts it and goes to the wrong place. Keep map entries at the "where responsibility lives" level; do not describe file contents (functions, signatures) — that detail changes every session and rots.
 
 **Then check the milestone.** If every feature in the current `features.md` milestone is now `passing`, tell the user the milestone looks complete and ask whether to close it (move its rows to `docs/features-archive.md` and promote the next batch from Backlog — see "Closing a milestone" in features.md). Closing is the user's call, not yours — but noticing is your job. Likewise, if the Feature List table has grown past ~20 rows mid-milestone, suggest splitting it.
 

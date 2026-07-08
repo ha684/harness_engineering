@@ -40,7 +40,8 @@ harness_engineering/
 │   ├── 04-session-exit.md           # Clock-out (clean handoff)
 │   ├── 05-generate-task-brief.md    # Generate a TASK.md for outsourcing (client side)
 │   ├── 06-task-intake.md            # Receive + plan + implement + verify a task (contractor side)
-│   └── 07-acceptance-review.md      # Independent evaluator — QA in a fresh session (never the one that built it)
+│   ├── 07-acceptance-review.md      # Independent evaluator — QA in a fresh session (never the one that built it)
+│   └── 08-scope-review.md           # Gap analysis — is anything missing, or is the scope satisfied?
 ├── examples/
 │   └── fastapi-todo/         # Fully filled-in worked example to study
 │       ├── AGENTS.md, PROGRESS.md, DECISIONS.md, features.md, QUALITY.md, Makefile

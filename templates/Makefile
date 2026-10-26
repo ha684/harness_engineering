@@ -1,53 +1,25 @@
-# Makefile — standardized agent-facing commands.
+# Stable command names, so an agent never has to guess how this project runs.
+# Fill in the TODOs; keep the target names (AGENTS.md and the prompts use them).
 #
-# Why a Makefile? Because the agent should not have to guess project-specific
-# invocations. `make setup`, `make test`, `make check` work the same way
-# in every project that uses this harness. One mental model, many projects.
-#
-# Fill in the TODOs for your specific stack. Keep target names stable —
-# AGENTS.md, the verification scripts, and the session-start prompt all
-# reference these names.
+# Monorepo: add per-area targets (test-be, test-fe, lint-be, ...) and have
+# `check` run all of them.
 
-.PHONY: setup dev test lint typecheck e2e check clean session-start session-exit help
+.PHONY: help setup dev test lint check
 
-help: ## Show this help
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-20s %s\n", $$1, $$2}'
+help: ## Show targets
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-10s %s\n", $$1, $$2}'
 
-setup: ## Install dependencies + prepare local environment
-	@echo "TODO: install dependencies (e.g. uv sync / pnpm install / poetry install)"
-	@echo "TODO: copy .env.example to .env if absent"
-	@echo "TODO: run database migrations if applicable"
+setup: ## Install dependencies and prepare the environment — must work from a fresh clone
+	@echo "TODO: e.g. uv sync && cp -n .env.example .env"
 
-dev: ## Start local dev server (foreground)
-	@echo "TODO: e.g. uvicorn app.main:app --reload"
+dev: ## Run the app locally
+	@echo "TODO: e.g. uv run uvicorn app.main:app --reload"
 
-test: ## Run unit + integration tests
-	@echo "TODO: e.g. pytest -x --cov=app"
+test: ## Run tests; narrow with T=, e.g. make test T=tests/test_tasks.py
+	@echo "TODO: e.g. uv run pytest $(T)"
 
-lint: ## Static checks (formatting, lint rules)
-	@echo "TODO: e.g. ruff check . && ruff format --check ."
+lint: ## Fast static checks: format, lint, types
+	@echo "TODO: e.g. uv run ruff check . && uv run ruff format --check . && uv run mypy app"
 
-typecheck: ## Type checking
-	@echo "TODO: e.g. mypy --strict src/"
-
-e2e: ## End-to-end / smoke tests (cross-component)
-	@echo "TODO: e.g. pytest tests/e2e/ or playwright test"
-
-check: lint typecheck test ## Full verification — all three layers
-	@echo "All checks passed."
-
-clean: ## Remove build artifacts and caches
-	@echo "TODO: e.g. rm -rf .pytest_cache __pycache__ dist build"
-
-session-start: ## Clock-in routine — show repo state, confirm clean baseline
-	@echo "=== Session start ==="
-	@echo "Latest commit:"
-	@git log -1 --oneline 2>/dev/null || echo "  (not a git repo)"
-	@echo "Working tree:"
-	@git status --short 2>/dev/null || true
-	@echo ""
-	@echo "Running full check to confirm baseline..."
-	@$(MAKE) check
-
-session-exit: ## Clock-out check — five clean-state dimensions
-	@bash scripts/session-exit-check.sh
+check: lint ## Full check — run once when a change is complete, not after every edit
+	@$(MAKE) --no-print-directory test T=

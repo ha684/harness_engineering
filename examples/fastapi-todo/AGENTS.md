@@ -1,77 +1,35 @@
 # AGENTS.md
 
-> Worked example — a todo-list HTTP API built with FastAPI. Mid-flight (some features passing, one active, several to go).
+Single-user todo-list REST API (FastAPI, async SQLAlchemy, PostgreSQL).
 
-## Project Overview
+## Commands
 
-`fastapi-todo` is a single-user todo-list REST API used as a teaching example for the harness engineering template. Stores tasks in PostgreSQL, exposes CRUD endpoints plus filtering and bulk operations.
-
-## Tech Stack
-
-- **Language:** Python 3.11
-- **Framework:** FastAPI 0.110
-- **Database:** PostgreSQL 15 (via asyncpg)
-- **ORM:** SQLAlchemy 2.0 (async)
-- **Package manager:** uv
-- **Test framework:** pytest + pytest-asyncio
-- **Lint / typecheck:** ruff + mypy --strict
-
-## Quick Start
-
-```bash
-make setup        # uv sync + copy .env.example to .env + run migrations
-make dev          # uvicorn app.main:app --reload
-make test         # pytest -x
-make check        # ruff + mypy + pytest
-```
-
-## Hard Constraints
-
-- **MUST** use SQLAlchemy 2.0 syntax (`select()`, not legacy `Query`). Why: 1.x syntax was removed in our SQLAlchemy version, mixing styles caused two production bugs in the source project this example is modeled on.
-- **MUST** use async/await throughout — no `def` route handlers, no sync DB calls in async context. Why: blocking the event loop kills request latency under load.
-- **MUST NOT** access the database from `app/api/` handlers directly — go through `app/service/`. Why: the layering rule is enforced by an import-linter check in `make lint`. Violating it breaks CI.
-- **MUST** parse and validate input at the API boundary using Pydantic models. Why: lecture 10 invariant — data is parsed at the boundary, not deeper.
-- **MUST NOT** mock the database in integration tests. Why: lecture-driven, prior mocked tests masked a real migration bug.
-
-## Working Style
-
-- **WIP = 1.** Only one feature is `active` in `features.md` at a time.
-- **Verification before declaring done.** Each feature has its own verification command. Static + behavioral + e2e all must pass before `passing`.
-- **No drive-by refactors.** Spot something? Add to `DECISIONS.md` → "Deferred".
-- **Clean exit.** All five dimensions must hold before ending a session.
-
-## Session Lifecycle
-
-**Clock in:**
-1. Read `PROGRESS.md`, `DECISIONS.md`
-2. Run `make check` — must be green before doing anything
-3. Pick next `not_started` feature, mark `active`
-
-**Clock out:**
-1. Run `make check`
-2. Update `PROGRESS.md` with done + next steps
-3. Remove debug code, commit
-
-## State Files
-
-| File | Purpose |
+| Task | Command |
 |---|---|
-| `PROGRESS.md` | Current state |
-| `DECISIONS.md` | Decision log |
-| `features.md` | Feature list with state machine |
-| `QUALITY.md` | Per-module quality |
+| Install / prepare | `make setup` — uv sync, .env, test database in Docker, migrations |
+| Run locally | `make dev` |
+| Run some tests | `make test T=tests/test_status_filter.py` |
+| Fast static checks | `make lint` — ruff, mypy --strict, import-linter |
+| Full check (once, when a change is complete) | `make check` |
 
-## Topic Docs
+## Where things are
 
-- [Architecture](docs/architecture.md) — Read before cross-module changes (api/service/repo boundaries)
-- [Testing standards](docs/testing.md) — Read when writing tests
+- What the system must do: `openspec/specs/`. Work in progress: `openspec/changes/`.
+- Module map and boundaries: `docs/architecture.md`.
+- Project-wide decisions and why: `DECISIONS.md`.
+- What past sessions learned the hard way: `lessons/INDEX.md` — open the entries that match what you're about to do.
 
-## Verification Commands
+## How we work
 
-| Layer | Command | When required |
-|---|---|---|
-| Static | `make lint` (ruff) and `make typecheck` (mypy --strict) | Every change |
-| Behavioral | `make test` (pytest, includes integration tests against real PG) | Every change |
-| End-to-end | `make e2e` (pytest tests/e2e/ — spins up app + DB, runs httpx scenarios) | Cross-component changes |
+- Changes to what the system does go through an OpenSpec change, even small ones — that's what keeps the specs true. Bug fixes that restore specified behavior, refactors, and obvious low-risk edits don't need one; a bug fix still gets a test that would have caught it.
+- If an OpenSpec change is in progress, read its `tasks.md` — including the handoff note at the bottom — before anything else.
+- Tests encode spec scenarios; see the `spec-driven-testing` skill. While iterating, run only the tests for what you're changing.
+- One change at a time. Problems you notice outside it go in the handoff note as follow-ups.
+- Don't commit or push — the user handles version control. When you finish, list the files you changed.
 
-Individual feature verification commands are in `features.md`.
+## Constraints
+
+- Database access only in `app/repo/`; handlers call services. `make lint` enforces this with import-linter.
+- SQLAlchemy 2.0 style only (`select()`, never `session.query()`) — the legacy API is removed in our version, and mixing styles caused real bugs.
+- Everything async: no `def` route handlers, no sync DB calls. A blocking call stalls every request on the event loop.
+- Tests use the real PostgreSQL from `make setup`, never a mocked database — mocks hid an ordering bug once already.

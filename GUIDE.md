@@ -1,358 +1,158 @@
-# Harness Engineering — Workflow Guide
+# Guide
 
-This document explains **how to actually use** the template kit across projects. README.md tells you what is in the box; this tells you how to operate it.
+How to run a project with this kit. README.md says what's in the box; this says how to work with it.
 
-## Mental model: five subsystems = a kitchen
+## How the pieces fit
 
-| Kitchen | Harness | Lecture |
+| Piece | Answers | Who writes it |
 |---|---|---|
-| Recipe shelf | `AGENTS.md` + `docs/` | 02, 03, 04 |
-| Knife rack | `Makefile` + `scripts/` | 02 |
-| Stove | locked dependencies + `make setup` | 02 |
-| Prep station | `PROGRESS.md` + `DECISIONS.md` | 05 |
-| Quality-check window | `scripts/verify.sh` + `make check` | 02, 09, 10 |
+| `AGENTS.md` (+ `CLAUDE.md` → `@AGENTS.md`) | How do I run and check things here? What would I get wrong? | You, rarely |
+| `openspec/specs/` | What must the system do? | Grows from archived changes |
+| `openspec/changes/<name>/` | What are we changing now, how far along is it? | Agent proposes, you review |
+| Tests | Does it actually do that? | Agent, from the scenarios |
+| `docs/architecture.md` | Where does this change belong? | Agent keeps the map current |
+| `DECISIONS.md` | Why is it built this way? | Both, only for project-wide choices |
+| `lessons/` | What tripped us up before? — opened only when relevant | Agent, only with evidence |
+| `.claude/skills/` | How do I do X here? — loaded only when X comes up | You, occasionally |
 
-If any of these is missing or rotten, the agent can still produce output, but the output will be unreliable.
+The design rule behind all of it: **give the agent facts it can't infer, not behavior it already has.** Models now follow short instructions well and reason about code better than a rulebook can describe; long rule lists make them over-apply rules, over-verify and over-use tools. So the kit keeps standing instructions to a minimum and puts everything else where it's only read when relevant — specs per change, skills on demand, tests as executable checks.
 
----
-
-## Phase 1 — Onboard a new project
-
-You have a new repo (greenfield or existing) and want to bring it under harness discipline.
-
-### Step 1.1 — Copy the templates
+## Setting up a project
 
 ```bash
-# From this kit
-cp -r templates/* /path/to/project/
-cp -r templates/.gitignore-additions /path/to/project/.gitignore-additions 2>/dev/null
+npm install -g @fission-ai/openspec@latest
+cd your-project
+openspec init                       # choose your agent(s)
+cp -r /path/to/kit/templates/. .    # AGENTS.md, CLAUDE.md, DECISIONS.md, Makefile, docs/, openspec/config.yaml, .claude/
 ```
 
-Then in your project, append `.gitignore-additions` content to `.gitignore` if needed.
+Open the agent in the project and paste `prompts/01-bootstrap.md`. It reads the code (or asks you, on an empty repo), fills the templates, and checks that the commands work. Review what it writes — especially `AGENTS.md`: if a line wouldn't change what a competent engineer does, delete it.
 
-### Step 1.2 — Run the generator prompt
+The project is ready when:
 
-Open Claude Code (or your agent of choice) in the project directory, and paste **one** of:
+- `make setup` works from a fresh clone and `make check` passes.
+- An agent reading only the repo can say what this is, how to run it, and how to check its work.
 
-- **`prompts/01-generate-from-repo.md`** — if the project already has code. The agent will scan files, infer tech stack, conventions, and verification commands, then propose filled-in `AGENTS.md`, `features.md`, `DECISIONS.md`, etc.
-- **`prompts/02-generate-interactive.md`** — if greenfield. The agent will ask you ~10 structured questions and fill the templates from your answers.
+Then start your first change. Don't write specs for existing code up front; they accumulate from real changes.
 
-**Always review the generated output before committing.** The agent is making educated guesses; you are the source of truth.
+## The daily loop
 
-### Step 1.3 — Verify the bootstrap contract
-
-From lecture 06, the project is properly bootstrapped only when **all four** conditions hold. See `checklists/bootstrap-contract.md`:
-
-1. `make setup` runs from a clean clone with no manual intervention
-2. `make test` exists and has at least one passing test
-3. A fresh agent session can answer "what is this / how do I run it / how do I verify it / where are we now" from repo files alone — the cold-start test (`checklists/cold-start-test.md`)
-4. `features.md` has at least 3 tasks broken down with verification commands
-
-If any condition fails, fix it before doing any feature work. **Do not mix initialization and feature implementation** (lecture 06).
-
-### Step 1.4 — Commit the checkpoint
-
-```bash
-git add AGENTS.md PROGRESS.md DECISIONS.md features.md QUALITY.md Makefile docs/ scripts/
-git commit -m "chore: bootstrap harness (AGENTS.md + verification + state files)"
+```
+/opsx:explore            think it through            (optional — or prompts/02-develop-idea.md)
+/opsx:propose <name>     proposal + scenarios + tasks
+  → review the scenarios                             (your main point of control)
+/opsx:update             requirements changed? revise the plan, not the code
+/opsx:apply              tests from scenarios, then code
+/handoff                 if stopping mid-change
+make check               once, when the change is complete
+prompts/04 in a fresh session                        (for changes that matter)
+/opsx:archive            specs now describe the new behavior
 ```
 
-This commit is your **warm-start baseline**. All future sessions start from a state at least this good.
+**Reviewing the proposal is where your time pays off most.** The agent writes plausible scenarios; you decide whether they're the right ones. Ask of each: is this what I want, and would this test catch a real bug? Edit freely.
 
----
+**Across sessions** there's nothing to paste at the start. `AGENTS.md` tells the agent to read the active change's `tasks.md`, whose `## Handoff` note says where things stand. Current models are good at reconstructing state from the filesystem and git; the handoff note covers what they can't see — what was surprising, what's next, what's waiting on you. End a session mid-change with `/handoff` (in other agents, paste the content of `templates/.claude/commands/handoff.md`).
 
-## Phase 2 — Run a session
+**One change at a time.** Things you notice outside the change go in the handoff note as follow-ups, not into the diff.
 
-### Step 2.1 — Clock in
+**Not everything needs a change.** The loop is for work that changes what the specs say — new or different behavior, however small the edit. Bug fixes that restore specified behavior, refactors, dependency bumps and obvious low-risk edits go straight to code; a bug fix still gets a test that would have caught it. Details in `docs/openspec.md` → "When you don't need a change at all".
 
-At the start of every agent session, paste `prompts/03-session-start.md` (or have it preconfigured as a hook / startup instruction). It tells the agent to:
+## Testing
 
-1. Read `PROGRESS.md` (current state)
-2. Read `DECISIONS.md` (constraints from past decisions)
-3. Run `make check` to confirm the repo is in a consistent state
-4. Pick the next `not_started` feature from `features.md`
-5. Set its state to `active` and announce what it will do
+The full approach is in the `spec-driven-testing` skill (`templates/.claude/skills/spec-driven-testing/SKILL.md`), which the agent loads whenever it works on tests. In short:
 
-### Step 2.2 — Work with WIP=1
+- **Tests come from spec scenarios.** One focused test per scenario that a bug could plausibly break, named after the scenario. No scenario, no test — and a behavior worth testing that has no scenario means the spec is missing something.
+- **Few and hard over many and easy.** Effort goes where bugs live: failure paths, edge values, ordering, concurrency, the seam between components. Not getters, mappings, framework behavior, or one-test-per-function.
+- **Behavior from the outside.** Through HTTP, CLI, UI or the public API, with real dependencies where they're cheap. No assertions on internal calls or mocks.
+- **Test first.** Write the scenario's test, see it fail for the right reason, then implement.
+- **Run at checkpoints, not after every edit.** Narrow tests while iterating (`make test T=…`), the full `make check` once when the change is complete.
 
-From lecture 07: **one feature active at a time.** The agent does not "also refactor this while it's here." If it spots something out of scope, it adds a note to `DECISIONS.md` ("noted: X needs cleanup later") and continues with the current feature.
+If tests in an existing project don't match this — too many, too brittle, testing implementation — leave them unless they're slowing you down; then propose a change that deletes or rewrites the worst offenders, with scenarios for what they were actually guarding.
 
-### Step 2.3 — Verify before marking passing
+## Review
 
-From lectures 09 + 10: the only way a feature moves from `active` to `passing` is by running the verification command and seeing it pass. Three layers:
+Two different questions, two tools:
 
-1. **Static** — `make lint` (syntax, typecheck)
-2. **Behavioral** — `make test` (unit + integration)
-3. **End-to-end** — feature-specific verification command (curl, playwright, smoke test)
+- **Is the code good?** Claude Code's built-in `/code-review` (and `/security-review`) on the diff.
+- **Does it do what the spec says?** `prompts/04-acceptance-review.md` in a fresh session. It exercises each scenario through the running app, checks for verification gaps — changed behavior with no scenario, scenarios with no test, tests that would pass even if the behavior broke — and reports every issue with severity and confidence.
 
-If layer N fails, do not proceed to layer N+1. Fix and re-run.
+The fresh session matters: an agent reviewing its own work in the same context is reliably generous; one with clean context isn't. Use the acceptance review where the cost of a miss is high — user-facing flows, data changes, anything crossing components. Skip it for small internal changes; the scenario tests already cover those.
 
-### Step 2.4 — Clock out (clean handoff)
+## Monorepos
 
-Before ending the session, paste `prompts/04-session-exit.md` or follow `checklists/session-exit.md`. The agent must confirm **all five** clean-state dimensions:
+- Root `AGENTS.md` holds only what's true in every area: shared commands, how we work. Each area gets its own short `AGENTS.md` with its stack, commands and constraints, plus a `CLAUDE.md` containing `@AGENTS.md` so Claude Code loads it when working there.
+- Test every root line against the area furthest from it. A backend async rule in root `AGENTS.md` is wrong even if the backend is all you've built so far.
+- OpenSpec capabilities can follow areas (`specs/api-tasks/`, `specs/web-tasks/`) or features spanning them — whichever matches how you think about behavior. A change touching backend and frontend is fine as one change if it's one behavior; split it if it's two.
+- Per-area make targets (`test-be`, `lint-fe`, …), with `make check` running all of them.
 
-- Build passes
-- Tests pass
-- `PROGRESS.md` updated with current state + next steps
-- No stale artifacts (temp files, debug logs, commented-out code)
-- Standard startup path (`make setup && make dev`) still works
+## Teams and outsourcing
 
-If any dimension is red, fix it before exit. **"Clean up later" means never clean up** (lecture 12).
+- **The change folder is the unit of work and review.** Agree on the proposal and scenarios in a PR before applying; then review code against agreed scenarios.
+- **Handing work out:** give the contractor or the other agent the change folder plus repo access. It carries the why, the acceptance criteria as scenarios, and the tasks — no separate brief needed.
+- **Receiving work:** `prompts/03-task-intake.md` turns a ticket into a change through Q&A, estimates it with the `agent-estimation` skill, and builds it once you approve.
+- **Accepting delivered work:** `prompts/04-acceptance-review.md`, then archive.
+- `DECISIONS.md` changes go through review like code; it's shared truth.
 
----
+## Lessons
 
-## Phase 3 — Maintain the harness
+Sessions learn things the hard way — a library that behaves unexpectedly, a query that's nondeterministic, a test setup that hides a bug — and without somewhere to put them, the next session learns them again. `lessons/` is that place. The idea comes from Google Research's Harness² paper, where a library of evidence-backed lessons was among the largest contributors to agent performance.
 
-### Audit `AGENTS.md` size
+Two rules keep it from turning into another rulebook:
 
-Every 2 weeks, check if `AGENTS.md` has grown past 200 lines. If it has, split content into `docs/<topic>.md` and replace the section with a one-line link. The entry file is a **router, not an encyclopedia** (lecture 04).
+- **On demand, not always loaded.** `AGENTS.md` points at `lessons/INDEX.md`; the agent opens only the entries that match the work in front of it.
+- **Evidence or nothing.** A lesson needs a concrete failure, the specific change that fixed it, and confirmation that it worked. `/handoff` and `/opsx:archive` record lessons when a session earned one; hunches and preferences don't qualify.
 
-### Update `QUALITY.md`
+A lesson isn't a decision: `DECISIONS.md` says why the project is built a certain way; a lesson says what will bite you if you don't know it. When the code a lesson describes is removed, or a test starts enforcing it, delete the lesson — `prompts/06` checks for this.
 
-After each significant session, re-score affected modules. A module drops from B to C when:
-- New flaky tests appeared
-- Architecture boundaries got violated
-- A feature is hard for a new agent to understand
+## Skills in the kit
 
-Sessions that find a C-rated module should consider fixing it before adding new features there.
+Skills are loaded only when relevant, which makes them the right home for guidance that matters sometimes — instead of `AGENTS.md`, which is read every time. The templates ship three in `.claude/skills/` (Claude Code's location; other agents that support skills have their own directory — copy the folders there):
 
-### Periodic harness simplification
+| Skill | Used when |
+|---|---|
+| `spec-driven-testing` | Writing, choosing or running tests |
+| `agent-estimation` | Estimating or scoping work — counts tool-call rounds, not human days, and includes comprehension, testing and review |
+| `learn` | You want to understand something rather than get it done — tutoring mode |
 
-From lecture 12: as models improve, some constraints become unnecessary overhead. Once a month, pick one rule in `AGENTS.md`, temporarily remove it, and run a benchmark task. If nothing breaks, remove it permanently.
+Add a skill when you find yourself repeating the same guidance across sessions. Keep `SKILL.md` as the file name, and make the `description` say precisely when it applies — that's what decides whether it loads.
 
-### Run the cleanup loop
+## Keeping the harness small
 
-Once a week, run a dedicated cleanup session (no feature work). Use `checklists/session-exit.md` as the inspection list against the whole repo. Target: zero stale artifacts, all builds green, all tests green.
+Every standing instruction costs attention in every session, and outdated ones actively hurt. When you're tempted to add a rule, place it as far down this list as it will go:
 
----
+1. **Tooling enforces it** — linter rule, type check, formatter, pre-commit hook. Best: no prose at all.
+2. **A test enforces it** — a spec scenario with a test.
+3. **It applies only to some work** — a skill, or the relevant change's design.
+4. **It applies to every session, and an agent would get it wrong otherwise** — one line in `AGENTS.md`, with its reason.
+5. **None of the above** — don't write it down.
 
-## What to do when things go wrong
+Run `prompts/06-maintain-harness.md` when code has moved without the harness (merged branches, teammates, hotfixes), when sessions start to feel heavy, and **whenever a new model ships**. That last one matters most: each model generation makes some instructions unnecessary, and instructions written to push an older model ("CRITICAL: always…", "double-check before…") make newer ones overdo it. The harness should get smaller over time.
 
-### "The agent built the wrong thing"
+`prompts/07-rewrite-prompt.md` applies the same thinking to the prompts in your own application.
 
-Diagnose against the five failure layers (lecture 01):
+## When things go wrong
 
-1. **Task specification** — was the feature in `features.md` precise enough? Did it have a verification command?
-2. **Context provision** — did the agent need to know something that was not in any of `AGENTS.md`, `docs/`, `DECISIONS.md`?
-3. **Execution environment** — was a dependency missing? A tool unavailable?
-4. **Verification feedback** — did the agent get clear signals when it went wrong, or did it run blind?
-5. **State management** — was the previous session's handoff incomplete?
-
-The fix goes into whichever layer was the root cause. Add a rule, a topic doc, a verification command, a `PROGRESS.md` field — whatever closes the gap. **Every failure should make the harness stronger.**
-
-### "The agent keeps re-doing work that was already done"
-
-State subsystem failure. Audit `PROGRESS.md` — is it truthful and current? Are completed features really marked `passing` in `features.md`?
-
-### "Sessions feel slow to start up"
-
-Rebuild cost is too high (lecture 05). Target: < 3 minutes from session open to first productive action. If higher:
-- `PROGRESS.md` is too vague — add concrete "next steps"
-- Too many topic docs need to be read — consolidate or improve summaries
-- `AGENTS.md` lacks the "Quick Start" section
-
-### "The agent declared done but it isn't"
-
-Verification gap (lecture 09). The feature's verification command is too weak or absent. Strengthen it:
-- Unit tests passing is **not enough** for cross-component features
-- Add an end-to-end verification (curl, browser automation, smoke test)
-- Make error messages actionable — they should tell the agent how to fix, not just what failed
-
----
-
-## File-by-file ownership
-
-| File | Updated by | Frequency |
+| Symptom | Usually means | Fix |
 |---|---|---|
-| `AGENTS.md` | You (humans) | Rarely, on architecture changes |
-| `docs/*.md` | You + agent | When new patterns emerge |
-| `PROGRESS.md` | Agent | Every session, at start and end |
-| `DECISIONS.md` | Agent (proposes), you (approves) | On every significant design choice |
-| `features.md` | You (initial breakdown), agent (state transitions) | Per feature lifecycle |
-| `QUALITY.md` | Agent (proposes), you (reviews) | After significant sessions |
-| `Makefile` | You | Rarely, when verification commands change |
-| `scripts/*.sh` | You | Rarely |
+| Built the wrong thing | Scenarios didn't capture what you wanted | Spend longer on proposal review; add the missing scenario |
+| Said done, isn't | No scenario covers what broke, or tests check internals | Add the scenario + an outside-in test; run acceptance review |
+| Redoes or forgets work across sessions | No handoff, or the change was never archived | `/handoff` before stopping; archive finished changes |
+| Repeats the same mistake in later sessions | What was learned stayed in a chat | Record a lesson with its evidence |
+| Ignores a constraint | It's buried in a long file, or has no reason attached | Move it to tooling or a test; if it must be prose, one line with a why |
+| Overdoes things — extra checks, extra files, extra tests | Standing instructions pushing too hard | `prompts/06` — cut rules, especially old emphatic ones |
+| Tests slow everything down | Full suite after every edit, or too many tests | Targeted tests while iterating; prune tests that don't map to scenarios |
 
-**Rule:** anything the agent updates regularly should have a clear schema. Anything you own should be brief enough to actually maintain.
+## Coming from v1
 
----
+| v1 | v2 |
+|---|---|
+| `features.md` | `openspec/changes/` (in progress) and `openspec/specs/` (delivered) |
+| `PROGRESS.md` | The active change's `tasks.md` + `## Handoff`; git history |
+| `TASK.md`, prompts 05/06 | The change folder; `prompts/03-task-intake.md` |
+| `QUALITY.md` | Dropped — review and failing scenarios surface quality issues when they matter |
+| Session start/exit prompts | Nothing at start; `/handoff` at end |
+| `docs/testing.md`, three-layer verify script | `spec-driven-testing` skill; `make check` once per change |
+| Prompts 09, 10, 11 | `/opsx:explore` or `prompts/02`; `prompts/06` |
+| Checklists | Folded into this guide |
 
----
-
-## Team model A — Product development (multi-person, continuous)
-
-Use this when: you have an ongoing product, multiple developers (human or agent), continuous sprints, no hard task boundary.
-
-### What changes vs the single-person model
-
-**Shared truth lives on `main`, never conflicts:**
-
-```
-main branch
-├── AGENTS.md          ← project constitution, rarely changes
-├── DECISIONS.md       ← append-only, PR required to add entries
-├── docs/              ← team-maintained architecture + testing docs
-├── features.md        ← master tracker (state machine only, see below)
-└── QUALITY.md         ← reviewed in weekly cleanup sessions
-```
-
-**Per-person state lives on feature branches, never merges to main:**
-
-```
-feature/F04-status-filter
-└── SESSION.md         ← rename from PROGRESS.md; scoped to this branch only
-```
-
-`SESSION.md` is discarded (or squash-merged into a branch summary) when the feature merges. It never touches `main`.
-
-### features.md in a multi-person team
-
-Keep `features.md` on `main` as a state machine tracker only — **no process notes, no sub-steps, no "in progress" prose**. Each row is owned by exactly one person at a time (WIP=1 per feature, not per person):
-
-```
-| F04 | Filter by status | pytest tests/integration/test_filter.py | active | @alice |
-| F05 | Bulk update      | pytest tests/integration/test_bulk.py  | not_started | — |
-```
-
-Add an `Owner` column. Merge conflict rate drops to near zero because each row belongs to one person.
-
-**Scale threshold:** if the team exceeds ~5 people or features exceed ~30 rows, replace `features.md` with GitHub Issues / Linear. In the repo, keep only `CURRENT_TASK.md` — a snapshot of the single feature the current branch is working on (pulled from the tracker at branch creation).
-
-### Sprint / milestone rhythm
-
-```
-Sprint start:
-  - Human updates features.md: promote next batch from not_started → queued
-  - Each dev picks one feature, creates a branch, creates SESSION.md
-
-During sprint:
-  - AGENTS.md, DECISIONS.md, docs/ updated via PR with review
-  - SESSION.md updated freely on the branch (no review)
-  - features.md state transitions (active → passing) via PR
-
-Sprint end / cleanup session:
-  - One dedicated cleanup session (lecture 12): no feature work
-  - QUALITY.md re-scored for all modules touched this sprint
-  - Run cold-start test (checklists/cold-start-test.md)
-  - AGENTS.md pruned if it grew past 200 lines
-```
-
-### Agent sessions in product mode
-
-Each agent session works on one feature branch. The clock-in/clock-out prompts (`prompts/03-session-start.md`, `prompts/04-session-exit.md`) work unchanged — the agent reads `SESSION.md` instead of `PROGRESS.md`. The only config change: add this to `AGENTS.md`:
-
-```markdown
-## State files (multi-person)
-- `AGENTS.md`, `docs/`, `DECISIONS.md` — project-wide truth, read-only for agents
-- `SESSION.md` (on feature branch) — session state, agent updates freely
-- `features.md` on main — state transitions only, updated via PR
-```
-
----
-
-## Team model B — Outsourcing / task-based
-
-Use this when: you hand discrete tasks to contractors, freelancers, or separate agent sessions with no shared context. The contractor should be able to do their work with **only the files you give them** and no verbal briefing.
-
-### The ownership split
-
-```
-Client maintains (project knowledge):         Contractor receives (task knowledge):
-├── AGENTS.md                                 ├── AGENTS.md (read-only copy)
-├── DECISIONS.md                              ├── DECISIONS.md (read-only copy)
-├── docs/                                     ├── relevant docs/
-└── features.md (master)                      └── TASK.md ← this is the key artifact
-```
-
-The contractor does **not** receive `PROGRESS.md` (not relevant), `QUALITY.md` (not their concern), or `features.md` (they only work on one task).
-
-### TASK.md — the contract
-
-`TASK.md` is a scoped mini-sprint contract (lecture 11) for a single outsourced task. Think of it as the intersection of a feature entry from `features.md` and everything the contractor needs to understand to do it safely.
-
-See `templates/TASK.md` for the blank template. The `prompts/05-generate-task-brief.md` prompt can auto-generate a TASK.md from a feature entry + the project's AGENTS.md.
-
-### End-to-end outsource workflow
-
-```
-Client (before handing off):
-  1. Pick a feature from features.md (must be not_started, not blocked)
-  2. Run prompts/05-generate-task-brief.md → produces TASK.md
-  3. Review TASK.md: is scope clear? are acceptance criteria testable?
-     are the context pointers correct?
-  4. Mark feature as active in features.md (so no one else picks it)
-  5. Hand contractor: AGENTS.md + DECISIONS.md + TASK.md + relevant docs/
-
-Contractor (doing the work):
-  1. Read AGENTS.md (rules), DECISIONS.md (context), TASK.md (the job)
-  2. Run make setup to verify environment
-  3. Implement against TASK.md acceptance criteria
-  4. Run the verification command — must exit 0
-  5. Fill in TASK.md "Evidence" section (changed files + test output snippet)
-  6. Deliver: code + completed TASK.md
-
-Client (after receiving):
-  1. Run make check — must be green
-  2. Re-run the verification command independently
-  3. If passing: update features.md state to passing, record evidence
-  4. If not: return TASK.md with specific failure reason + FIX guidance
-     (lecture 10: error messages should tell how to fix, not just what failed)
-  5. Update DECISIONS.md if the task introduced new design choices
-```
-
-### What makes a good TASK.md
-
-The test: can a skilled contractor complete the task with zero verbal communication, relying only on the files you gave them?
-
-**Good TASK.md:**
-- Scope section says exactly which files/modules to touch
-- Out-of-scope section says what NOT to touch (prevents drive-by refactors)
-- Acceptance criteria are behavioral, not implementation-level
-- Verification command is a single runnable command that exits 0 on pass
-- Context pointers say "see DECISIONS.md entry 2026-03-01" not "use our auth style"
-
-**Bad TASK.md:**
-- "Add the usual auth middleware" (what is "the usual"?)
-- "Make sure it's clean" (not verifiable)
-- No verification command
-- No out-of-scope section (contractor refactors half the codebase "while there")
-
-### When a task comes back broken
-
-Do not just say "tests fail, fix it." That creates a guessing loop. Instead, fill in the TASK.md "Rejection reason" section with:
-
-```
-Rejection reason: test_verify_email_expired_token fails (exit 1).
-Command: pytest tests/integration/test_verify_email.py::test_expired_token
-Output: AssertionError: expected 422, got 200
-Root cause (client investigation): the token expiry check is in service layer
-  but the test is calling the repo directly, bypassing it.
-Fix: move the expiry check into the route handler or call via the service
-  in the test (see docs/testing.md "no direct repo calls in integration tests").
-```
-
-This mirrors lecture 10's agent-oriented error message pattern — but for human/contractor handoffs.
-
----
-
-## When NOT to use this template
-
-This kit is overkill for:
-
-- Throwaway one-shot scripts (just write the script)
-- Single-session tasks under 30 minutes
-- Projects with no agent involvement at all
-
-It pays off for:
-
-- Multi-session work spanning days or weeks
-- Codebases where multiple agent sessions (or multiple developers) need to coordinate
-- Any project where "the agent confidently broke something" has happened more than once
-
----
-
-## Next steps
-
-1. Read `examples/fastapi-todo/` to see every template filled in for a real-ish project
-2. Try the workflow on a small toy project before deploying it on production work
-3. After each project, ask: which template did I never touch? Which one saved me the most time? Iterate on the template kit itself.
+Migrating a live project: you don't have to do it in one go. Install OpenSpec, run `prompts/06-maintain-harness.md` to cut `AGENTS.md` down, and start the *next* feature as an OpenSpec change. Move any still-relevant `features.md` items into `DECISIONS.md` → "Not doing" or into new changes as you get to them; then delete the old state files.

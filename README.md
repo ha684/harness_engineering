@@ -1,117 +1,74 @@
-# Harness Engineering Template
+# Harness Engineering Kit
 
-A portable, tool-agnostic harness template for AI coding agents (Claude Code, Codex, Cursor).
+A portable setup that makes AI coding agents (Claude Code, Codex, Cursor, …) reliable on real projects. Copy it into a repo, run one bootstrap prompt, and work.
 
-This repository is **not a project** — it is a kit you copy into projects. It packages the five-subsystem harness model from the lectures into reusable templates, generator prompts, and a worked example so you can stand up a reliable agent harness in any new repo in under 30 minutes.
+## What it's built on (v2)
 
-## The five subsystems (recap)
+Models are now good at following short instructions and at reasoning about code. What they still can't do is guess what you want built, know the commands and constraints of your project, or tell honestly whether the work is done. The harness supplies exactly those three things and stays out of the way otherwise:
 
-| Subsystem | Question it answers | Files in this kit |
-|---|---|---|
-| **Instruction** | What is this project, what are the rules? | `AGENTS.md`, `docs/*.md` |
-| **Tool** | What can the agent run? | `Makefile`, `scripts/` |
-| **Environment** | How is the runtime reproducible? | lockfiles, `Makefile setup` target |
-| **State** | What is done, in progress, decided? | `PROGRESS.md`, `DECISIONS.md`, `features.md` |
-| **Feedback** | How do we know it actually works? | `scripts/verify.sh`, `Makefile check` |
+1. **What to build** — specs with concrete WHEN/THEN scenarios, managed with [OpenSpec](https://github.com/Fission-AI/OpenSpec), agreed before code is written.
+2. **How this project works** — a short `AGENTS.md`: commands, where things live, the few constraints an agent would get wrong.
+3. **Whether it's done** — a small number of tests derived from those scenarios, run at checkpoints; plus independent review for changes that matter.
 
-Missing any one of these is like a kitchen with no stove, or no quality-check window — you can still cook, but it will be awkward and unreliable.
+Everything beyond that is weight. Long rule lists make current models over-apply rules, over-verify and over-use tools, so v2 is mostly deletions: fewer files, shorter prompts, guidance moved into skills that load only when relevant.
 
-## What is in this repo
-
-```
-harness_engineering/
-├── README.md                 # You are here
-├── GUIDE.md                  # Full workflow, including product-dev and outsource models
-├── templates/                # COPY THESE into your new project
-│   ├── AGENTS.md             # Routing entry file (50-200 lines)
-│   ├── PROGRESS.md           # Cross-session state (single-person / feature branch)
-│   ├── DECISIONS.md          # Design decision log
-│   ├── features.md           # Feature list with state machine
-│   ├── TASK.md               # Outsource contract (one task handed to a contractor)
-│   ├── QUALITY.md            # Per-module quality tracker
-│   ├── Makefile              # Standardized commands
-│   ├── docs/                 # Topic docs (loaded on demand)
-│   ├── scripts/              # Verification + session-exit checks
-│   └── .claude/commands/     # Claude Code slash commands (/session-start, /session-exit)
-├── prompts/                  # PASTE THESE into an agent to generate filled files
-│   ├── 01-generate-from-repo.md     # Existing projects (agent scans code)
-│   ├── 02-generate-interactive.md   # Greenfield (agent asks you)
-│   ├── 03-session-start.md          # Clock-in routine
-│   ├── 04-session-exit.md           # Clock-out (clean handoff)
-│   ├── 05-generate-task-brief.md    # Generate a TASK.md for outsourcing (client side)
-│   ├── 06-task-intake.md            # Receive + plan + implement + verify a task (contractor side)
-│   ├── 07-acceptance-review.md      # Independent evaluator — QA in a fresh session (never the one that built it)
-│   ├── 08-scope-review.md           # Gap analysis — is anything missing, or is the scope satisfied?
-│   ├── 09-develop-idea.md           # Design partner — develop your idea with repo context, end in feature rows
-│   ├── 10-refresh-harness.md        # Surgical re-sync of harness docs after code moved without them
-│   └── 11-compact-harness.md        # Deep-clean the state files — compress prose, never facts
-├── examples/
-│   └── fastapi-todo/         # Fully filled-in worked example to study
-│       ├── AGENTS.md, PROGRESS.md, DECISIONS.md, features.md, QUALITY.md, Makefile
-│       └── TASK-F04-example.md      # What a good TASK.md looks like when filled
-└── checklists/               # Quick-reference checklists
-    ├── bootstrap-contract.md # Lecture 06: four init conditions
-    ├── cold-start-test.md    # Lecture 03: five cold-start questions
-    ├── session-exit.md       # Lecture 12: five clean-state dimensions
-    └── task-handoff.md       # Outsource model: pre-delivery + post-review checks
-```
-
-## Quick start (60 seconds)
-
-For a brand-new project:
+## Quick start
 
 ```bash
-# 1. Copy templates into your project root
-cp -r templates/* /path/to/your-project/
-cp -r templates/.* /path/to/your-project/ 2>/dev/null || true
-
-# 2. Open an agent in that project and paste prompts/02-generate-interactive.md
-#    The agent will ask you ~10 questions and fill in AGENTS.md, features.md, etc.
-
-# 3. Verify the bootstrap contract (checklists/bootstrap-contract.md):
-#    - make setup works
-#    - make test runs at least one passing test
-#    - a new session can answer "how do I run / test / continue this?"
+npm install -g @fission-ai/openspec@latest
+cd your-project
+openspec init
+cp -r /path/to/this-kit/templates/. .
 ```
 
-For an existing project:
+Open your agent in the project and paste `prompts/01-bootstrap.md`. Then, in Claude Code:
 
-```bash
-# 1. Copy templates into your project root (same as above)
-
-# 2. Paste prompts/01-generate-from-repo.md into an agent with repo access.
-#    It will scan your code and propose filled-in versions of every template.
-
-# 3. Review, adjust, commit.
+```
+/opsx:propose add-something     write the change: proposal, scenarios, tasks — then review it
+/opsx:apply                     build it: tests from the scenarios first
+/handoff                        stopping mid-change? leave a note for next session
+/opsx:archive                   done: the specs now describe the new behavior
 ```
 
-## Read GUIDE.md next
+## What's in the box
 
-`GUIDE.md` walks through the full workflow: how to onboard a new project, how to run a session start-to-finish, what to do when something fails, and how to evolve the harness over time.
+```
+README.md                  you are here
+GUIDE.md                   how to work with it: daily loop, testing, review, monorepos, teams, maintenance
+docs/openspec.md           OpenSpec: install, commands, formats, brownfield adoption, pitfalls
+templates/                 copy into your project
+├── AGENTS.md              short: commands, map, how we work, constraints
+├── CLAUDE.md              @AGENTS.md — Claude Code reads it from here
+├── DECISIONS.md           project-wide decisions only
+├── Makefile               setup / dev / test T=… / lint / check
+├── docs/architecture.md   module map — where responsibility lives
+├── lessons/INDEX.md       what past sessions learned the hard way — read on demand, evidence required
+├── openspec/config.yaml   context + rules: testable scenarios, tests first, check once
+└── .claude/
+    ├── commands/handoff.md
+    └── skills/            spec-driven-testing · agent-estimation · learn
+prompts/                   paste into an agent
+examples/fastapi-todo/     a filled-in project, mid-change
+```
 
-## Two team models
+## Prompts
 
-`GUIDE.md` covers three operating modes in detail:
+| Prompt | When |
+|---|---|
+| `01-bootstrap` | Once per project — fills the templates from the code or from your answers |
+| `02-develop-idea` | You have an idea; think it through with unlimited questions and real alternatives, end in an OpenSpec change |
+| `03-task-intake` | You've been handed a task: clarify, turn into a change, estimate, build, report |
+| `04-acceptance-review` | Independent QA of a finished change, in a fresh session — behavior and test coverage |
+| `05-scope-review` | Is anything missing — or is the scope already enough? |
+| `06-maintain-harness` | Re-sync with the code and cut back — especially when a new model ships |
+| `07-rewrite-prompt` | Improve any prompt, including the ones in your own application |
 
-| Mode | Key files | When |
-|---|---|---|
-| **Single-person / solo agent** | AGENTS.md, PROGRESS.md, features.md | Personal projects, solo sessions |
-| **Product development** | AGENTS.md on main, SESSION.md on branch, features.md as state machine | Multi-person team, continuous sprints |
-| **Outsourcing / task-based** | AGENTS.md + DECISIONS.md + TASK.md delivered per task | Contractors, freelancers, isolated agent sessions |
+Most daily work needs none of them — the OpenSpec commands and `/handoff` cover it.
 
-The instruction subsystem (AGENTS.md, docs/, DECISIONS.md) is **universal across all three modes**. Only the state subsystem (PROGRESS/SESSION/TASK) changes.
+## Coming from v1?
 
-## Source lectures
+`features.md`, `PROGRESS.md`, `TASK.md`, `QUALITY.md`, the session start/exit prompts and the checklists are gone — OpenSpec change folders carry that state now. See "Coming from v1" in GUIDE.md for the mapping and a gradual migration path.
 
-This template synthesizes:
-- Lecture 02 — five-subsystem harness model
-- Lecture 03 — repo as single source of truth + ACID state
-- Lecture 04 — instruction file splitting (entry file as router)
-- Lecture 05 — cross-session continuity artifacts
-- Lecture 06 — dedicated initialization phase + bootstrap contract
-- Lecture 07 — WIP=1 scope control
-- Lecture 08 — feature list as harness primitive
-- Lecture 09 — three-layer termination validation
-- Lecture 10 — end-to-end verification + architectural rules as executable checks
-- Lecture 11 — runtime + process observability (sprint contract, evaluator rubric)
-- Lecture 12 — clean handoff at session exit
+## Sources
+
+The 12 Harness Engineering lectures (continuity artifacts, WIP=1, feature lists, verification, clean handoff — the ideas survive, the files changed); Anthropic's prompting guidance for current Claude models and the "Harness design for long-running application development" engineering post (independent evaluators, stripping scaffolding as models improve); and OpenSpec.

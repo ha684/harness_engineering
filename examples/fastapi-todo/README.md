@@ -1,33 +1,28 @@
-# Worked example: fastapi-todo
+# Example: fastapi-todo
 
-This directory shows what every template file looks like **after** being filled in for a real-ish project. Use it as a reference when bootstrapping your own projects.
+A small FastAPI todo API, mid-way through a change, showing every v2 file filled in. The application code isn't included — the files reference `app/` and `tests/` as if they exist — except for one test file that shows what a spec-derived test looks like.
 
-## What this example illustrates
+## Where the project is
 
-Imagine a small FastAPI todo service that has been worked on for 3 sessions. The harness state files reflect that history:
+Create, get and paginated list are done and archived; they make up `openspec/specs/tasks/spec.md`. The change in progress is **add-status-filter**: its tests are written, validation and the ordering fix are in, and the status filter in the repository query is next. The `status=both` question from the v1 example was settled during proposal review — an unknown value is rejected with 422 — and the flaky ordering test turned into a scenario of its own.
 
-- **3 features completed** (F01-F03) — task creation, get-by-id, paginated list
-- **1 feature active** (F04) — status filter, blocked on an API design question
-- **3 features queued** (F05-F07) — bulk update, delete, end-to-end smoke
-- **1 known issue** (F08) — flaky test waiting for a tiebreak fix
+## What to look at
 
-## What to study
-
-| File | What to notice |
+| File | Notice |
 |---|---|
-| `AGENTS.md` | Stays under 100 lines. Hard constraints have reasons. Verification commands are concrete. |
-| `PROGRESS.md` | "Next Steps" is specific enough that the next session can act without asking. Open Questions block forward motion until resolved. |
-| `DECISIONS.md` | Each entry has reason + rejected alternative + going-forward constraint. The "Deferred" section captures temptations to refactor mid-flight. |
-| `features.md` | Triple structure: behavior + verification + state. State transitions reflect WIP=1 (only F04 is `active`). |
-| `QUALITY.md` | Scores have reasons. The "Next action if not A" field tells you exactly what to fix to upgrade. |
-| `Makefile` | Stable target names. `make check` is the single command that runs all three verification layers. |
+| `AGENTS.md` | About 40 lines. Commands, a pointer to the map, four constraints — each with its reason, most pointing at the tool that enforces it. |
+| `openspec/specs/tasks/spec.md` | The current behavior. Every requirement has scenarios a test can check from outside. |
+| `openspec/changes/add-status-filter/` | A complete change: why (`proposal.md`), what (`specs/` delta), how far along (`tasks.md`). |
+| `…/tasks.md` → `## Handoff` | All the next session needs, in four lines. This replaces v1's `PROGRESS.md`. |
+| `…/specs/tasks/spec.md` | The ordering scenario: the hard case that the flaky test was really about, now a requirement. |
+| `tests/test_status_filter.py` | One test per scenario, named after it, through HTTP, no mocks of our own code. |
+| `DECISIONS.md` | Three project-wide decisions and a "Not doing" list. Per-change reasoning isn't here — it would be in a change's `design.md`. |
+| `lessons/` | One lesson, with its evidence: what failed, what fixed it, how that was confirmed. Read only when someone writes a sorted query. |
 
-## What is NOT in this example
+## v1 → v2, in this example
 
-To keep the example focused on harness state, the actual `app/` source code is **not** included. In a real project, you would have `app/api/`, `app/service/`, `app/repo/`, `tests/`, `alembic/migrations/`, etc. The harness state files reference those paths as if they exist.
-
-## How to use this
-
-1. Read it end to end once — it takes ~10 minutes.
-2. When bootstrapping your own project, refer back to specific files when you are unsure about phrasing or level of detail.
-3. Notice what the example does NOT include: no flowery prose, no implementation details in `AGENTS.md`, no "TODO: think about this later" — every section is either concrete or explicitly marked deferred.
+| v1 file | Now |
+|---|---|
+| `features.md` (F01–F08) | F01–F03 → `openspec/specs/tasks/spec.md`; F04 → the active change; F05–F07 → future changes; F08 → a scenario in the active change |
+| `PROGRESS.md` | `tasks.md` + its handoff note |
+| `QUALITY.md`, `TASK-F04-example.md` | Gone — the change folder is the brief |

@@ -1,0 +1,32 @@
+schema: spec-driven
+
+context: |
+  Single-user todo-list REST API.
+  Stack: Python 3.11, FastAPI, async SQLAlchemy 2.0, PostgreSQL 15, uv.
+  Run tests: make test T=<path>; full check: make check.
+  Module map and boundaries: docs/architecture.md. Project decisions: DECISIONS.md.
+  Constraints: api → service → repo layering (import-linter); async only; tests use the real
+  PostgreSQL, never a mocked database.
+
+rules:
+  proposal:
+    - Keep each change small enough to implement and review in one sitting; split anything larger into separate changes.
+    - State what is explicitly out of scope.
+  specs:
+    - Every requirement has at least one scenario, written as WHEN/THEN, that can be checked from outside the code (HTTP, CLI, UI, public API).
+    - Cover the failure and edge cases that matter for the requirement, not only the happy path.
+  design:
+    - Write design.md only when the change involves a real trade-off; record the alternatives you rejected and why.
+  tasks:
+    - For each requirement, the first task is writing the tests for its scenarios; implementation tasks follow.
+    - The last task is running `make check` once.
+
+operations:
+  apply:
+    guidance:
+      - While iterating, run only the tests for the scenario at hand; run the full check once at the end.
+      - Delete scratch checks when done; don't turn them into permanent tests.
+  archive:
+    guidance:
+      - If the change settled something project-wide, add or update an entry in DECISIONS.md.
+      - If building it taught something a future change would otherwise relearn, record it in lessons/ (format in lessons/INDEX.md).
